@@ -1,0 +1,122 @@
+      
+<%- include ../partials/header %>
+<%- include ../partials/sidebar %>  
+<style>
+  .padding_remove
+  {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+</style>
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="">
+                    <form id="user-info" class="form-horizontal"  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>job_seekers/add" >
+                        <div class="">
+                            <h3 class="card-title"><%=title%></h3>
+                            <%- include ../messages %>
+                            <div class="title_right text-right">
+                                <a href="<%= adminbaseurl %>job_seekers" class="btn btn-success right">Go To List</a>
+                            </div><br>   
+                            <div class="row">
+                             
+                              <div class="form-group col-md-4">
+                                  <label  class="text-left control-label col-form-label">User Name <span class="required">*</span></label>
+                                  <div class="col-sm-12 padding_remove">
+                                      <input id="username" class="form-control" name="username" type="text" required="required" value="<%= arrData ? arrData.username : '' %>">
+                                  </div>
+                              </div>
+
+                              <!-- <div class="form-group col-md-4">
+                                    <label  class="text-left control-label col-form-label">Last Login At <span class="required">*</span></label>
+                                    <div class="col-sm-12 padding_remove">
+                                        <input id="last_login_at" class="form-control" name="last_login_at" type="text" required="required" value="<%= arrData ? arrData.last_login_at : '' %>">
+                                    </div>
+                                </div> -->
+                          
+                              <div class="form-group col-md-4">
+                                  <label  class="text-right control-label col-form-label">Password <span class="required">*</span></label>
+                                  <div class="col-sm-12 padding_remove">
+                                      <% if(arrData.length==0){ %>
+                                        <input id="password" class="form-control"  name="password" type="password" required="required" value="<%= arrData ? arrData.password : '' %>">
+                                        <% }else{ %>
+                                          <input id="password" class="form-control" readonly disabled  name="password" type="password" required="required" value="<%= arrData ? arrData.password : '' %>">
+                                        <% } %>
+                                  </div>
+                              </div>
+
+                            <div class="form-group col-md-4">
+                                    <label class="text-right control-label col-form-label">Profile Picture <span class="required">*</span></label>
+                                    <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" onchange="preView()"  <% if(arrData && arrData.profile_picture && arrData.profile_picture!=''){  }else {%> required="required" <% }%> >
+                                    <input type="hidden" name="update_profile_picture" value="<%= arrData ? arrData.profile_picture : '' %>">
+                                <div class="col-sm-12 padding_remove">
+                                        <%
+                                        var profile_picture = "admin/" + arrData.id + "/profile_picture.jpg";
+                                        if(helper.isFileExists(profile_picture)) profile_picture = baseurl + "user_contents/" + profile_picture;
+                                        else profile_picture = baseurl + "user_contents/no_profile_picture.jpg";
+                                        %>
+                                      
+                                    <img id="preview" src="<%= profile_picture %>" style="width: 120px; margin-top: 10px;" class="img-thumbnail" />
+                                </div>
+                            </div>
+                        
+
+                            
+                            <div class="form-group col-md-4">
+                                <label class="text-left control-label col-form-label">Status <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <select name="status"  class="form-control" required="required">  
+                                        <option  value="" selected disabled>Choose...</option>                              
+                                        <option <% if(arrData.status=='active'){ %>selected="selected" <% }%> value="active">Active</option>
+                                        <option <% if(arrData.status=='inactive'){ %>selected="selected" <% }%> value="inactive">Inactive</option>                         
+                                      </select>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    
+
+                        <div class="border-top float-right">
+                          <div class="">
+                              <input type="hidden" name="update_id" value="<%= arrData ? arrData.job_seeker_id : '' %>">
+                              <button  id="send" type="submit" class="btn btn-primary">Submit</button>
+                          </div>                          
+                      </div>
+
+                  </form>
+              </div>
+          </div>           
+      </div>
+  </div>
+</div>
+</body>
+
+</html>
+<%- include ../partials/footer %>
+
+<script>
+        function preView()  {
+          var fileInput = document.getElementById('profile_picture');
+          var filePath = fileInput.value;
+          var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+        if(!allowedExtensions.exec(filePath)){
+            alert('Please upload file having extensions .jpeg/.jpg/.png  only.');
+            fileInput.value = '';
+            return false;
+        }else{
+            //Image preview
+            if (fileInput.files && fileInput.files[0]) {
+              var reader = new FileReader();             
+                reader.onload = function(){
+                  var output = document.getElementById('preview');
+                  output.src = reader.result;
+                };
+                reader.readAsDataURL(event.target.files[0]);
+              
+              };
+        }
+        }
+            </script>
+

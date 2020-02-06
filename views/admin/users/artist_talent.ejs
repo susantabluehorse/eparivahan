@@ -1,0 +1,731 @@
+<ul class="nav nav-tabs oc-sub-nav-tab">
+    <li class="active"><a data-toggle="tab" href="#artisan_talent_tab">Artisan / Talent</a></li>
+    <li><a data-toggle="tab" href="#about_tab">About</a></li>
+    <li><a data-toggle="tab" href="#awards_tab">Awards & Achievements</a></li>
+    <li><a data-toggle="tab" href="#work_history_tab">Work History</a></li>
+    <li><a data-toggle="tab" href="#gallery_tab">Gallery</a></li>
+    <li><a data-toggle="tab" href="#review_rating_tab">Reviews & Rating</a></li>
+</ul>
+
+<div class="tab-content">
+
+  <!-- ------------------------------------------- Artist tab start ------------------------------------------- -->
+  <div id="artisan_talent_tab" class="tab-pane fade in active">
+      <form class="vendor_sub_category_contents_info" id="sub_cat_form_artist" class="form-horizontal form-label-left" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/artisan_talent_tab">
+
+          <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="artisan_talent_tab">
+          <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+          <input class="artist_row_id" name="id" type="hidden" value="<%= arrData ? arrData.artist_row_id : '' %>">
+
+
+          <div class="item form-group field">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">Cover Image</label>
+                        <input type="file" class="form-control" id="cover_image" name="cover_image" accept="image/*" onchange="coverPicPreview()"  <% if(arrData && arrData.cover_image && arrData.cover_image!=''){  }else {%> required="required"<% }%> >                    
+                        <input type="hidden" name="update_cover_image" value="<%= arrData ? arrData.cover_image : '' %>">
+                        <div>
+                            <%
+                            var cover_image = "vendor/" + arrData.v_id + "/cover_image.jpg";
+                            if(helper.isFileExists(cover_image)) cover_image = baseurl + "user_contents/" + cover_image;
+                            else cover_image = baseurl + "user_contents/no_image.jpg";
+                            %>
+                          
+                        <img id="cover_image_preview" src="<%= cover_image %>" style="width: 120px; margin-top: 10px;" class="img-thumbnail" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">Profile Picture</label>
+                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" onchange="profilePicPreview()"  <% if(arrData && arrData.profile_picture && arrData.profile_picture!=''){  }else {%> required="required"<% }%> >                    
+                        <input type="hidden" name="update_profile_picture" value="<%= arrData ? arrData.profile_picture : '' %>">
+                        <div>
+                            <%
+                            var profile_picture = "vendor/" + arrData.v_id + "/profile_picture.jpg";
+                            if(helper.isFileExists(profile_picture)) profile_picture = baseurl + "user_contents/" + profile_picture;
+                            else profile_picture = baseurl + "user_contents/no_profile_picture.jpg";
+                            %>
+                          
+                        <img id="profile_picture_preview" src="<%= profile_picture %>" style="width: 120px; margin-top: 10px;" class="img-thumbnail" />
+                        </div>
+                    </div>                              
+                </div><!-- .row --> 
+            </div><!-- .cols -->
+          </div><!-- .form-group -->
+
+
+
+          <div class="item form-group field">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <label class="control-label">Minimum Budget</label>
+                                <input type="text" id="min_budget" class="form-control col-md-8 col-xs-12" name="min_budget" type="text" required="required" value="<%= arrData ? arrData.min_budget : '' %>">
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <label class="control-label">Maximum Budget</label>
+                                <input type="text" id="max_budget" class="form-control col-md-2 col-xs-12" name="max_budget" type="text" required="required" value="<%= arrData ? arrData.max_budget : '' %>">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">Location</label>
+                        <input id="location" class="form-control col-md-7 col-xs-12" name="location" type="text" required="required" value="<%= arrData ? arrData.location : '' %>">
+                    </div>                              
+                </div><!-- .row --> 
+            </div><!-- .cols -->
+          </div><!-- .form-group -->
+          
+
+
+          <div class="form-group field">                               
+            <button type="submit" class="btn btn-success btn-primary btn-block send disabled">Update</button>
+          </div>
+
+
+    </form>
+  </div><!-- #artisan_talent_tab -->
+  <!-- ------------------------------------------- Artist tab end ------------------------------------------- -->
+
+
+
+
+
+  <!-- ----------------------------------------- About sub tab start ----------------------------------------- -->
+  <div id="about_tab" class="tab-pane fade in">
+      <form class="vendor_sub_category_contents_info" id="sub_cat_form_about" class="form-horizontal form-label-left" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/about_tab">
+        
+        <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="about_tab">
+        <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+        <input class="artist_row_id" name="id" type="hidden" value="<%= arrData ? arrData.artist_row_id : '' %>">
+
+
+
+        <div class="item form-group field">
+          <div class="col-xs-12">
+              <div class="row">
+                  <div class="col-md-6 col-sm-6 col-xs-12">                        
+                      <label class="control-label">Introduction</label>
+                      <textarea id="introduction" class="form-control col-md-7 col-xs-12" name="introduction" type="text" required="required"><%= arrData ? arrData.introduction : '' %></textarea>
+                  </div>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                      <label class="control-label">Intro Video</label>
+                      <input type="file" id="intro_video" class="form-control col-md-8 col-xs-12" name="intro_video" type="text" value="<%= arrData ? arrData.intro_video : '' %>">
+                  </div>                                                 
+              </div><!-- .row --> 
+          </div><!-- .cols -->
+        </div><!-- .form-group -->  
+
+
+
+
+        <div class="item form-group field">
+          <div class="col-xs-12">
+              <div class="row">
+                  <div class="col-md-6 col-sm-6 col-xs-12">                        
+                      <label class="control-label">Years of Experience</label>
+                      <input type="number" id="years_of_experience" class="form-control col-md-7 col-xs-12" name="years_of_experience" type="text" required="required" value="<%= arrData ? arrData.years_of_experience : '' %>"> 
+                  </div>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                      <label class="control-label">USP</label>
+                      <input type="text" id="usp" class="form-control col-md-7 col-xs-12" name="usp" type="text" required="required" value="<%= arrData ? arrData.usp : '' %>">
+                  </div>                                                 
+              </div><!-- .row --> 
+          </div><!-- .cols -->
+        </div><!-- .form-group -->             
+
+
+
+
+        <div class="item form-group field">
+          <div class="col-xs-12">
+              <div class="row">
+                  <div class="col-md-6 col-sm-6 col-xs-12">                        
+                      <label class="control-label">Tags</label>
+                      <input type="text" id="tags" class="form-control col-md-7 col-xs-12" name="tags" type="text" required="required" value="<%= arrData ? arrData.tags : '' %>"> 
+                  </div>
+                  <div class="col-md-6 col-sm-6 col-xs-12">
+                      <label class="control-label">Other Requirements</label>
+                      <input type="text" id="other_requirements" class="form-control col-md-7 col-xs-12" name="other_requirements" type="text" required="required" value="<%= arrData ? arrData.other_requirements : '' %>"> 
+                  </div>                                                 
+              </div><!-- .row --> 
+          </div><!-- .cols -->
+        </div><!-- .form-group -->             
+
+
+
+        <div class="form-group field">                               
+            <button type="submit" class="btn btn-success btn-primary btn-block send disabled">Update</button>
+        </div>
+      
+      </form>
+  </div>
+  <!-- ----------------------------------------- About sub tab end ----------------------------------------- -->
+
+
+
+
+
+
+  <!-- ---------------------------------- Awards & Achievements tab start --------------------------------- -->
+  <div id="awards_tab" class="tab-pane fade in">
+      <div class="contanier-fluid">
+            <div class="row">
+                <div class="col-xs-12">
+                    <ul class="oc-tab-options">
+                        <li><a class="btn bg-primary oc-add-btn" data-form="sub_cat_form_awards">Add new</a></li>
+                        <li><a class="btn bg-primary oc-list-btn" data-for="oc-list-anchor1">List</a></li>
+                    </ul>
+                </div>
+            </div><!-- .row -->
+      </div><!-- .container -->
+
+      <form id="sub_cat_form_awards" class="form-horizontal form-label-left vendor_awards_achievements_info" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/awards_tab">
+
+        <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="awards_tab">
+        <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.vendor_id : '' %>">
+        <input class="awards_id" id="H_id" name="awards_id" type="hidden" value="">
+
+        <div class="item form-group field">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <label class="control-label">Award / Achievement</label>
+                        <input type="text" id="awards_title" class="form-control" name="awards_title" type="text" required="required" value="<%= arrData ? arrData.awards_title : '' %>">
+                    </div>                  
+                </div><!-- .row --> 
+            </div>
+        </div>
+
+
+        <div class="item form-group field">
+              <div class="col-xs-12">
+                  <div class="row">
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                          <label class="control-label">Location</label>
+                          <input type="text" id="awards_location" class="form-control" name="awards_location" type="text" required="required" value="<%= arrData ? arrData.awards_location : '' %>">
+                      </div>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                          <label class="control-label">Year</label>
+                          <input type="text" id="awards_date" class="form-control" name="awards_date" type="text" required="required" value="<%= arrData ? arrData.awards_date : '' %>">
+                      </div>
+                  </div><!-- .row --> 
+            </div>
+        </div>  
+
+
+        <div class="form-group field">                             
+            <button type="submit" class="btn btn-success btn-primary btn-block send disabled">Save</button>
+        </div>
+
+      </form>
+
+
+      <br><br><br><br>
+      <!-- Display list of the awards and achievements -->
+      <div class="col-md-12 col-sm-12 col-xs-12 oc-list-anchor1">
+          <table id="datatable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th style="width:15px">Sl No</th>
+                  <th>Awards / Achievements</th>
+                  <th>Location</th>
+                  <th>Date</th>
+                  <th class="abc" data-orderable="false">Action</th>
+                </tr>
+              </thead>
+
+
+              <tbody>
+                  <tr class="insert-after"><td></td></tr>
+                        
+              <% 
+                if(typeof vendor_awards_list !== 'undefined') {
+                    var i=1;
+                    var count = vendor_awards_list.length;
+                    vendor_awards_list.forEach(function(award) {
+              %>
+                    <tr id="tr_<%= award.awards_id %>">
+                    <td class="serial_no"> <%= i %></td>
+                    <td class="<%= award.awards_id%>_awards_title"> <%= award.awards_title %></td>
+                    <td class="<%= award.awards_id%>_awards_location"> <%= award.awards_location %></td>
+                    <td class="<%= award.awards_id%>_awards_date"> <%= award.awards_date %></td>
+
+                    <td>
+                        <a class="btn btn-info btn-xs oc-btn-edit" id="<%= award.awards_id %>" data-for="awards_tab"><i class="fa fa-pencil"></i> Edit </a>
+                        <a delete-row="<%= award.awards_id %>" class="btn btn-danger btn-xs oc_delete_btn"><i class="fa fa-trash-o"></i> Delete </a>
+                        <form method="post" id="delete_form_<%= award.awards_id %>" action="<%= adminbaseurl %>users/vendor/sub-category-contents/delete/awards" enctype="multipart/form-data">
+                            <input type="hidden" name="H_id" id="H_id" value="<%= award.awards_id %>">
+                        </form>
+                    </td>
+                    </tr>
+                    <% i++; }) %>
+                    <% if(count == 0) { %>
+                        <tr id="oc-nrf"><td colspan="5" class="text-center">No data found!</td></tr>
+                    <% } %>
+                <% } %>
+                        
+              </tbody>
+          </table>
+      </div>
+
+
+
+  </div>
+  <!-- ---------------------------------- Awards & Achievements tab end --------------------------------- -->
+
+
+
+  <!-- ---------------------------------------- Work Hostory tab start --------------------------------- -->
+  <div id="work_history_tab" class="tab-pane fade in">
+      <div class="contanier-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="oc-tab-options">
+                    <li><a class="btn bg-primary oc-add-btn" data-form="sub_cat_form_work_history">Add new</a></li>
+                    <li><a class="btn bg-primary oc-list-btn" data-for="oc-list-anchor2">List</a></li>
+                </ul>
+            </div>
+        </div><!-- .row -->
+      </div><!-- .container -->
+        
+      <form id="sub_cat_form_work_history" class="form-horizontal form-label-left vendor_work_history_info" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/work_history_tab">
+
+        <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="work_history_tab">
+        <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+        <input class="work_history_id" id="H_id" name="work_history_id" type="hidden" value="">
+
+          <div class="item form-group field">
+              <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-5 col-sm-5 col-xs-12">
+                        <label class="control-label">Project Name</label>
+                        <input type="text" id="project_name" class="form-control" name="project_name" type="text" required="required" value="<%= arrData ? arrData.project_name : '' %>">
+                    </div>
+                    <div class="col-md-4 col-sm-4 col-xs-12">
+                        <label class="control-label">Project Location</label>
+                        <input type="text" id="project_location" class="form-control" name="project_location" type="text" required="required" value="<%= arrData ? arrData.project_location : '' %>">
+                    </div>
+                    <div class="col-md-3 col-sm-3 col-xs-12">
+                        <label class="control-label">Date</label>
+                        <input type="date" id="project_date" class="form-control text-center" name="project_date" type="text" required="required" value="<%= arrData ? arrData.project_date : '' %>">
+                    </div>
+                </div><!-- .row --> 
+
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="control-label">About Project</label>
+                        <textarea id="about_project" class="form-control" name="about_project" type="text" required="required"><%= arrData ? arrData.about_project : '' %></textarea>
+                    </div>                      
+                </div><!-- .row -->
+            </div>
+        </div>
+
+
+        <div class="form-group field">                             
+            <button type="submit" class="btn btn-success btn-primary btn-block send disabled">Save</button>
+        </div>
+      </form>
+
+
+
+      <br><br><br><br>
+      <!-- Display list of the work history -->
+      <div class="col-md-12 col-sm-12 col-xs-12 oc-list-anchor2">
+          <table id="datatable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th style="width:15px">Sl No</th>
+                  <th>Project name</th>
+                  <th>Location</th>
+                  <th>About Project</th>
+                  <th>Date</th>
+                  <th class="abc" data-orderable="false">Action</th>
+                </tr>
+              </thead>
+
+
+              <tbody>
+                  <tr class="insert-after"><td></td></tr>
+                        
+              <% 
+                if(typeof work_history_list !== 'undefined') {
+                    var i=1;
+                    var count = work_history_list.length;
+                    work_history_list.forEach(function(work_history) {
+              %>
+                    <tr id="tr_<%= work_history.work_history_id %>">
+                    <td class="serial_no"> <%= i %></td>
+                    <td class="<%= work_history.work_history_id%>_project_name"> <%= work_history.project_name %></td>
+                    <td class="<%= work_history.work_history_id%>_project_location"> <%= work_history.project_location %></td>
+                    <td class="<%= work_history.work_history_id%>_about_project"> <%= work_history.about_project %></td>
+                    <td class="<%= work_history.work_history_id%>_project_date"> <%= work_history.project_date %></td>
+
+                    <td>
+                        <a class="btn btn-info btn-xs oc-btn-edit" id="<%= work_history.work_history_id %>" data-for="work_tab"><i class="fa fa-pencil"></i> Edit </a>
+                        <a delete-row="<%= work_history.work_history_id %>" class="btn btn-danger btn-xs oc_delete_btn"><i class="fa fa-trash-o"></i> Delete </a>
+                        <form method="post" id="delete_form_<%= work_history.work_history_id %>" action="<%= adminbaseurl %>users/vendor/sub-category-contents/delete/work-history" enctype="multipart/form-data">
+                            <input type="hidden" name="H_id" id="H_id" value="<%= work_history.work_history_id %>">
+                        </form>
+                    </td>
+                    </tr>
+                    <% i++; }) %>
+                    <% if(count == 0) { %>
+                        <tr id="oc-nrf"><td colspan="5" class="text-center">No data found!</td></tr>
+                    <% } %>
+                <% } %>
+                        
+              </tbody>
+          </table>
+      </div>
+
+
+
+
+
+  </div>
+  <!-- ---------------------------------------- Work Hostory tab end --------------------------------- -->
+
+
+
+
+
+
+  <!-- ---------------------------------------- Gallery tab start ------------------------------------ -->
+  <div id="gallery_tab" class="tab-pane fade in">
+      <!-- <div class="overlay">
+          <img src="<%=adminbaseurl%>images/uploading.gif">
+        </div> -->
+      <div class="contanier-fluid">
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="oc-tab-options">
+                    <li><a class="btn bg-primary oc-add-btn" data-form="sub_cat_form_gallery">Upload New</a></li>
+                    <li><a class="btn bg-primary oc-list-btn" data-for="oc-list-anchor3">List</a></li>
+                </ul>
+            </div>
+        </div><!-- .row -->
+      </div><!-- .container -->
+
+
+      <form class="sub_cat_form_gallery" id="sub_cat_form_gallery" class="form-horizontal form-label-left" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/gallery_tab">
+
+        <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="gallery_tab">
+        <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+        <input class="album_id" id="H_id" name="album_id" type="hidden" value="">
+
+        <div class="item form-group field">
+          <div class="col-xs-12">
+            <div class="row">
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <label class="control-label">Album Name</label>
+                    <input type="text" id="album_name" class="form-control" name="album_name" id="album_name"  value="<%= arrData ? arrData.album_name : '' %>" >
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <label class="control-label">Upload Image(s)</label>
+                    <input type="file" id="upload_images" class="form-control" name="upload_images" onchange="ValidateSingleInput(this)" value="" multiple>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <label class="control-label">Upload Video</label>
+                    <input type="file" id="upload_video" class="form-control" name="upload_video" onchange="return Validatevideo(this)"  value="">
+                </div>
+            </div><!-- .row --> 
+          </div><!-- .cols -->
+        </div><!-- from-field -->
+
+        <div class="form-group field">                             
+            <button type="submit" class="btn btn-success btn-primary btn-block oc-gallery-btn send disabled">Save</button>
+        </div>
+      </form>
+
+
+      <br><br>
+      <!-- Display list of images and video from the gallery -->
+      <!-- <div class="col-md-12 col-sm-12 col-xs-12 oc-list-anchor2">
+            <div class="oc-gallery-images">
+                <h2>Gallery Images</h2>
+                <ul class="oc-ul-gallery">
+                <%
+                if(typeof gallery_image_list !== 'undefined' && gallery_image_list.length > 0) {
+                    gallery_image_list.forEach(function(image) {
+                    %>
+                        <li><a href="<%=baseurl %>/user_contents/vendor/<%=arrData.v_id%>/gallery/<%= image.name %>" target="_blank">
+                            <img src="<%=baseurl %>/user_contents/vendor/<%=arrData.v_id%>/gallery/<%= image.name %>" class="img-thumbnail" />
+                        </a></li>
+                    <%
+                    });
+                } else {
+                %>
+                    <li>&nbsp;&nbsp;No image found!</li>
+                    
+                <%
+                }
+                %>
+                </ul>
+            </div>
+            <br><br>
+            <div class="oc-gallery-videos">
+                <h2>Gallery Videos</h2>
+                <ul class="oc-ul-gallery">
+                <%
+                if(typeof gallery_video_list !== 'undefined' && gallery_video_list.length > 0) {
+                    gallery_video_list.forEach(function(video) {
+                    %>
+                        <li><a href="<%=baseurl %>/user_contents/vendor/<%=arrData.v_id%>/gallery/<%= video.name %>">
+                            <video controls  class="img-thumbnail">
+                                <source src="<%=baseurl %>/user_contents/vendor/<%=arrData.v_id%>/gallery/<%= video.name %>" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </a></li>
+                    <%
+                    });
+                } else {
+                %>
+                <li>&nbsp;&nbsp;No video found!</li>
+                <%
+                }
+                %>
+                </ul>
+            </div>
+      </div>.cols -->
+
+      <div class="col-md-12 col-sm-12 col-xs-12 oc-list-anchor1">
+        <table id="datatable" class="table table-striped table-bordered">
+            <thead>
+              <tr>
+                <th style="width:15px">Sl No</th>
+                <th>Album Name</th>
+                <th>Created At</th>
+                <th>Status</th>
+                <th class="abc" data-orderable="false">Action</th>
+              </tr>
+            </thead>
+
+
+            <tbody>
+                <tr class="insert-after"><td></td></tr>
+                      
+            <% 
+              if(typeof album_list !== 'undefined') {
+                  var i=1;
+                  var count = album_list.length;
+                  album_list.forEach(function(album) {
+            %>
+                  <tr id="tr_<%= album.id %>">
+                  <td class="serial_no"> <%= i %></td>
+                  <td class="<%= album.id%>_album_name"> <%= album.album_name %></td>
+                  <td class="<%= album.id%>_createdAt"> <%= album.createdAt %></td>
+                  <td class="<%= album.id%>_status"> <%= album.status %></td>
+
+                  <td>
+                      <a class="btn btn-info btn-xs oc-btn-edit" id="<%= album.id %>" data-for="gallery_tab"><i class="fa fa-pencil"></i> Edit </a>
+                      <a delete-row="<%= album.id %>" class="btn btn-danger btn-xs oc_delete_btn"><i class="fa fa-trash-o"></i> Delete </a>
+                      <form method="post" id="delete_form_<%= album.id %>" action="<%= adminbaseurl %>users/vendor/sub-category-contents/delete/gallery_tab" enctype="multipart/form-data">
+                          <input type="hidden" name="H_id" id="H_id" value="<%= album.id %>">
+                      </form>
+                  </td>
+                  </tr>
+                  <% i++; }) %>
+                  <% if(count == 0) { %>
+                      <tr id="oc-nrf"><td colspan="5" class="text-center">No data found!</td></tr>
+                  <% } %>
+              <% } %>
+                      
+            </tbody>
+        </table>
+    </div>
+          
+  </div>
+  <!-- ---------------------------------------- Gallery tab end -------------------------------------- -->
+
+
+
+
+  <!-- ------------------------------------ Review rating tab start ---------------------------------- -->
+  <div id="review_rating_tab" class="tab-pane fade in">
+      <form class="vendor_sub_category_contents_info" id="sub_cat_form_review" class="form-horizontal form-label-left" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor/sub-category-contents/review_tab">
+
+        <input id="sub_cat_tab" name="sub_cat_tab" type="hidden" value="review_tab">
+        <input class="vendor_id" name="vendor_id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+        <input class="review_row_id" name="review_row_id" id="H_id" type="hidden" value="<%= arrData ? arrData.review_id : '' %>">
+
+        <!-- <div class="item form-group field">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">Review By : &nbsp;<a href="#" target="_bank">Mitrajit Samanta</a></label>
+                    </div>    
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <label class="control-label">Date : &nbsp;19-09-2019</label>
+                    </div>              
+                </div>
+            </div>
+        </div>
+    
+    
+        <div class="item form-group field">
+            <div class="col-xs-12">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="control-label">Review Content</label>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                    </div>                        
+                </div>
+            </div>
+        </div>  
+    
+    
+        <div class="form-group field">                             
+            <button type="submit" class="btn btn-success btn-primary btn-block send">Save</button>
+        </div> -->
+      </form>
+
+      <!-- Display list of the work history -->
+      <div class="col-md-12 col-sm-12 col-xs-12 oc-list-anchor3">
+          <table id="datatable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th style="width:15px">Sl No</th>
+                  <th>Review By</th>
+                  <th>Review Content</th>
+                  <th>Date</th>
+                  <th class="abc" data-orderable="false">Action</th>
+                </tr>
+              </thead>
+
+
+              <tbody>
+                  <tr class="insert-after"><td></td></tr>
+                        
+              <% 
+                if(typeof review_list !== 'undefined') {
+                    var i=1;
+                    var count = review_list.length;
+                    review_list.forEach(function(review) {
+                        var user_type="vendor";
+                        if(review.customer_type == 'customer') user_tyep = "customer";
+                        var user_url = adminbaseurl + "users/addedit/"+ user_type + "/" + review.user_id;
+
+              %>
+                    <tr id="tr_<%= review.review_id %>">
+                    <td class="serial_no"> <%= i %></td>
+                    <td class="<%= review.review_id%>_review_by"> <a href="<%=user_url %>" target="_blank"><%= review.name %></a></td>
+                    <td class="<%= review.review_id%>_review_content"> <%= review.review_content %></td>
+                    <td class="<%= review.review_id%>_review_date"> <%= review.createdAt %></td>
+
+                    <td>
+                        <!-- <a class="btn btn-info btn-xs oc-btn-edit" id="<%= review.review_id %>" data-for="work_tab"><i class="fa fa-pencil"></i> Edit </a> -->
+                        <a delete-row="<%= review.review_id %>" class="btn btn-danger btn-xs oc_delete_btn"><i class="fa fa-trash-o"></i> Delete </a>
+                        <form method="post" id="delete_form_<%= review.review_id %>" action="<%= adminbaseurl %>users/vendor/sub-category-contents/delete/work-history" enctype="multipart/form-data">
+                            <input type="hidden" name="H_id" id="H_id" value="<%= review.review_id %>">
+                        </form>
+                    </td>
+                    </tr>
+                    <% i++; }) %>
+                    <% if(count == 0) { %>
+                        <tr id="oc-nrf"><td colspan="5" class="text-center">No data found!</td></tr>
+                    <% } %>
+                <% } %>
+                        
+              </tbody>
+          </table>
+      </div>
+  </div>
+  <!-- ------------------------------------ Review rating tab end ---------------------------------- -->
+
+
+</div><!-- .tab-content -->
+
+<script>
+var _validFileExtensions = [".jpg"];    
+function ValidateSingleInput(oInput) {
+    if (oInput.type == "file") {
+        var sFileName = oInput.value;
+        var fileName = sFileName.split(/(\\|\/)/g).pop();
+        console.log(fileName);
+         if (sFileName.length > 0) {
+            var blnValid = false;
+            for (var j = 0; j < _validFileExtensions.length; j++) {
+                var sCurExtension = _validFileExtensions[j];
+                if (sFileName.substr(sFileName.length - sCurExtension.length, sCurExtension.length).toLowerCase() == sCurExtension.toLowerCase()) {
+                    blnValid = true;
+                    break;
+                }
+            }             
+            if (!blnValid) {
+                alert("Sorry, " + fileName + " is invalid, allowed extensions are: " + _validFileExtensions.join(", "));
+                oInput.value = "";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+</script>
+<script>
+    function Validatevideo() {
+        var fileInput = document.getElementById('upload_video');
+        var filePath = fileInput.value;
+        var allowedExtensions = /(\.mp4)$/i;
+        if(!allowedExtensions.exec(filePath)){
+            alert('Please upload file having extensions .mp4 only.');
+            fileInput.value = '';
+            return false;
+        }
+    }
+</script>
+
+<script>
+function coverPicPreview()  {
+    //alert('111111111111111111');
+    var fileInput = document.getElementById('cover_image');
+    var filePath = fileInput.value;
+    var allowedExtensions = /(\.jpg|\.jpeg)$/i;
+    if(!allowedExtensions.exec(filePath)){
+        //alert('222222222222222222');
+        alert('Please upload file having extensions .jpeg/.jpg  only.');
+        fileInput.value = '';
+        return false;
+    }else{
+        //alert('3333333333333333333');
+        //Image preview
+        if (fileInput.files && fileInput.files[0]) {
+            //alert('44444444444444444');
+            var reader = new FileReader();             
+            reader.onload = function(){
+                //alert('5555555555555555');
+                var output = document.getElementById('cover_image_preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+            //alert('666666666666666');
+            
+        };
+    }
+}
+
+function profilePicPreview()  {
+    //alert('9999999999999999999999');
+    var fileInput = document.getElementById('profile_picture');
+    var filePath = fileInput.value;
+    var allowedExtensions = /(\.jpg|\.jpeg)$/i;
+    if(!allowedExtensions.exec(filePath)){
+        alert('Please upload file having extensions .jpeg/.jpg  only.');
+        fileInput.value = '';
+        return false;
+    }else{
+        //Image preview
+        if (fileInput.files && fileInput.files[0]) {
+            var reader = new FileReader();             
+            reader.onload = function(){
+                var output = document.getElementById('profile_picture_preview');
+                output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+            
+            };
+    }
+}
+</script>

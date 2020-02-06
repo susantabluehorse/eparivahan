@@ -1,0 +1,45 @@
+<% if(typeof messages !== 'undefined' && messages!='') {%>
+    <div class="succ_msg msg">
+            <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>  
+            <%=messages%>
+    </div>
+<%}%>             
+<% if(typeof errors !== 'undefined' && errors!='') {%>
+    <div class="succ_err msg">
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>  
+        <%=errors%>
+    </div>
+<% }%>
+
+<!-- <style type="text/css">
+.succ_msg, .succ_err { animation: css 0s 3s forwards;}
+@keyframes css {to { opacity: 0; z-index: -10;}}
+</style> -->
+
+
+
+
+<style>
+.succ_msg, .succ_err{
+    background: #66bb6a;
+    border-radius: 2px;
+    padding: 11px 5px;
+    float: left;
+    color: #fff;
+    width: 100%;
+    margin-bottom: 30px;
+    }
+.succ_err{
+    background: #ef5350; 
+    border-radius: 2px;
+    padding: 11px 5px;
+    float: left;
+    color: #fff;
+    width: 100%;
+    margin-bottom: 30px;  
+    }
+    @media(max-width:767px){
+    .succ_msg{ position: relative;};
+    .succ_err{ position: relative;};
+    }    
+</style>

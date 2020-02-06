@@ -1,0 +1,90 @@
+{
+    "category": {
+        "1": "Category1",
+        "2": "Category2",
+        "3": "Category3",
+        "4": "Category4",
+        "5": "Category5"
+    },
+    "series": {
+        "1": "Series1",
+        "2": "Series2",
+        "3": "Series3",
+        "4": "Series4",
+        "5": "Series5"
+    },
+    "sequence": {
+        "1": "Sequence1",
+        "2": "Sequence2",
+        "3": "Sequence3",
+        "4": "Sequence4",
+        "5": "Sequence5"
+    },
+    "projects": {
+        "1": "Project1",
+        "2": "Project2",
+        "3": "Project3",
+        "4": "Project4",
+        "5": "Project5"
+    },
+    "profiles": {
+        "1": "profile1",
+        "2": "profile2",
+        "3": "profile3",
+        "4": "profile4",
+        "5": "profile5"
+    },
+    "companies": {
+        "1": "company1",
+        "2": "company2",
+        "3": "company3",
+        "4": "company4",
+        "5": "company5"
+    },
+    "classified": {
+        "1": "Classified1",
+        "2": "Classified2",
+        "3": "Classified3",
+        "4": "Classified4",
+        "5": "Classified5"
+    },
+    "opecType": {
+        "Type1": "Type1",
+        "Type2": "Type2",
+        "Type3": "Type3",
+        "Type4": "Type4",
+        "Type5": "Type5"
+    },
+    "peopleName": {
+        "People1": "People1",
+        "People2": "People2",
+        "People3": "People3",
+        "People4": "People4",
+        "People5": "People5"
+    },
+    "projectPhase": {
+        "O": "O",
+        "E": "E",
+        "P": "P",
+        "C": "C"
+       
+    },
+    "yearOfStartingOps": {
+        "2011": "2011",
+        "2012": "2012",
+        "2013": "2011",
+        "2014": "2013",
+        "2015": "2015",
+        "2016": "2016",
+        "2017": "2017"
+       
+    } ,
+    "location": {
+        "location1": "location1",
+        "location2": "location2",
+        "location3": "location3",
+        "location4": "location4",
+        "location5": "location5"
+       
+    }
+}

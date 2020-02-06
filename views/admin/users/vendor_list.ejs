@@ -1,0 +1,87 @@
+<%- include ../partials/sidebar %>       
+<%- include ../partials/header %>
+<!-- page content -->
+
+<style type="text/css">
+img.oc-profile-picture {width:35px; padding:3px; border:1px solid #ccc; border-radius:3px}
+</style>
+
+<div class="right_col" role="main">
+    <div class="">
+        <div class="page-title">
+                <div class="title_left">
+                  <h3><%=title%><small></small></h3>
+                  
+                </div>
+                <div class="title_right text-right">
+                  <a href="<%= adminbaseurl %>users/addedit/vendor" class="btn btn-success right"><i class="fa fa-plus"></i> Add Vendor</a>
+                </div>               
+              </div>            
+            
+      <div class="clearfix"></div>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+          <div class="x_panel">
+              <%- include ../messages %>
+            <div class="x_content">
+              
+              <table id="datatable" class="table table-striped table-bordered">
+                <thead>
+                  <tr>
+                    <th style="width:15px">Sl No</th>
+                    <th class="text-center">DP</th>
+                    <!-- <th>Username</th> -->
+                    <!-- <th>User Type</th> -->
+                    <!-- <th>Vendor Category</th> -->
+                    <th>Name</th>
+                    <!-- <th>Email</th> -->
+                    <th>Mobile</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <!-- <th>DOJ</th> -->
+                    <th>Status</th>
+                    <th class="abc" data-orderable="false">Action</th>
+                  </tr>
+                </thead>
+
+
+                <tbody>                        
+                  <% var i=1;
+                    arrData.forEach(function(val) { 
+                  %>                        
+                    <tr>
+                      <td><%= i %></td>
+                      <td class="text-center">
+                          <%
+                          var profile_picture = "vendor/" + val.id + "/profile_picture.jpg";
+                          if(helper.isFileExists(profile_picture)) profile_picture = baseurl + "user_contents/" + profile_picture;
+                          else profile_picture = baseurl + "user_contents/no_profile_picture.jpg";
+                          %>
+                          <img src="<%= profile_picture %>" class="oc-profile-picture">
+                      </td>    
+                  
+                      <td> <%= val.name %></td> 						
+                      <td> <%= val.mobile %></td> 
+                      <td> <%= val.email %></td> 
+                      <td> <%= val.address %></td>
+                      <td> <%= val.status %></td>
+                      <td>
+                        <a href="<%= adminbaseurl%>users/addedit/vendor/<%= val.id %>" class="btn btn-info btn-xs"><i class="fa fa-pencil"></i> Edit </a>
+                        <a id="delete" href="<%= adminbaseurl%>users/delete/<%= val.id %>" class="btn btn-danger btn-xs" onclick="return(confirm('Do you really want to delete? '));"><i class="fa fa-trash-o"></i> Delete </a>
+                      </td>
+                    </tr>
+                  <% i++; }) %>
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<!-- page content -->
+<!-- <script src="<%= adminbaseurl %>vendors/validator/validator.js"></script> -->
+<%- include ../partials/footer %>
+
+
+

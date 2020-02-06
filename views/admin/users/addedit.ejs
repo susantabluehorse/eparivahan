@@ -1,0 +1,240 @@
+<%- include ../partials/sidebar %>       
+<%- include ../partials/header %>
+<style>
+    .required {
+      color: red;
+    }
+    .inputLength
+    {
+      width: 100% !important;
+    }
+    .textareaheight
+    {
+      height: 35px !important;
+    }
+    .submitPos{
+      position: inherit;
+      left: 674px;
+    }
+</style>
+
+<div class="right_col" role="main">
+	<div class="">
+        <div class="page-title">
+          <div class="title_left">
+            <h3><%=title%></h3>            
+          </div>
+          <div class="title_right text-right">
+              <a href="<%= adminbaseurl %>users" class="btn btn-success right">List of Customer</a>
+          </div>          
+        </div>
+      <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <%- include ../messages %>
+              <div class="x_content">
+
+                <form id="user-info" class="form-horizontal form-label-left"  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/customer"  >
+
+                  <input type="hidden" name="id" value="<%= arrData ? arrData.id : '' %>">
+                
+                  
+                    <div class="row">
+                      <div class="col-md-6">
+                        <div class="item form-group field">                                        
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label class="control-label">Name<span class="required">*</span></label>
+                                    <input type="text" id="name" class="form-control inputLength" name="name" type="text" required="required" value="<%= arrData ? arrData.name : '' %>">
+                                </div>                  
+                            </div>
+                          </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="item form-group field">                                        
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label class="control-label">Email<span class="required">*</span></label>
+                                    <input id="email" class="form-control col-md-7 col-xs-12" name="email" type="text" required="required"
+                                    onblur="ValidateEmail()"  onkeyup="this.value=this.value.replace(/[ ]/g,'');"  value="<%= arrData ? arrData.email : '' %>">
+                                </div>                  
+                            </div>
+                          </div>
+                      </div>
+
+                      <div class="col-md-6">
+                          <div class="item form-group field">                                        
+                              <div class="row">
+                                  <div class="col-md-12 col-sm-12 col-xs-12">
+                                      <label class="control-label">Mobile <span class="required">*</span>
+                                      </label>
+                                      <input id="mobile" class="form-control col-md-7 col-xs-12" name="mobile" type="text" 
+                                      maxlength="10" minlength="10" pattern="^[6-9]\d{9}$" onkeypress="return blockChar(event)"
+                                      required="required" value="<%= arrData ? arrData.mobile : '' %>">
+                                  </div>                  
+                              </div>
+                            </div>
+                        </div>
+
+                        <!-- <div class="col-md-6">
+                            <div class="item form-group field">                                        
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label class="control-label">User Name<span class="required">*</span>
+                                        </label>
+                                        <input id="username"    class="form-control col-md-7 col-xs-12" name="username" type="text" required="required" value="<%= arrData ? arrData.username : '' %>">
+                                    </div>                  
+                                </div>
+                              </div>
+                          </div> -->
+
+                          <!-- <div class="col-md-6">
+                              <div class="item form-group field">                                        
+                                  <div class="row">
+                                      <div class="col-md-12 col-sm-12 col-xs-12">
+                                          <label class="control-label">Password<span class="required">*</span></label>
+                                          <% if(arrData.length==0){ %>
+                                            <input id="password" class="form-control col-md-7 col-xs-12"  name="password" type="password"   value="<%= arrData ? arrData.password : '' %>">
+                                            <% }else{ %>
+                                              <input id="password" class="form-control col-md-7 col-xs-12" readonly disabled  name="password" type="password"  value="<%= arrData ? arrData.password : '' %>">
+                                            <% } %>
+                                      </div>                  
+                                  </div>
+                                </div>
+                            </div> -->
+
+                          <div class="col-md-6">
+                              <div class="item form-group field">                                        
+                                  <div class="row">
+                                      <div class="col-md-12 col-sm-12 col-xs-12">
+                                          <label class="control-label">Address <span class="required">*</span>
+                                          </label>
+                                          <textarea  type="text" id="address" name="address" class="form-control" required="required" ><%= arrData ? arrData.address : '' %></textarea>
+                                      </div>                  
+                                  </div>
+                                </div>
+                            </div>
+
+                     
+                        <div class="col-md-6">
+                            <div class="item form-group field">                                        
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <label class="control-label">Profile Picture<span class="required">*</span></label>
+                                        <input type="file" class="form-control" id="profile_picture" name="profile_picture" accept="image/*" onchange="preView()"  <% if(arrData && arrData.profile_picture && arrData.profile_picture!=''){  }else {%> required="required"<% }%> >
+                                        <input type="hidden" name="update_profile_picture" value="<%= arrData ? arrData.profile_picture : '' %>">
+                                        <div>
+                                            <%
+                                            var profile_picture = "customer/" + arrData.id + "/profile_picture.jpg";
+                                            if(helper.isFileExists(profile_picture)) profile_picture = baseurl + "user_contents/" + profile_picture;
+                                            else profile_picture = baseurl + "user_contents/no_profile_picture.jpg";
+                                            %>
+                                          
+                                        <img id="preview" src="<%= profile_picture %>" style="width: 120px; margin-top: 10px;" class="img-thumbnail" />
+                                        </div>
+                                    </div>                  
+                                </div>
+                              </div>
+                          </div>
+                     
+
+                      
+                    <div class="col-md-6">
+                        <div class="item form-group field">                                        
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label class="control-label">Status<span class="required">*</span></label>
+                                    <select name="status" class="form-control >   
+                                        <option  value="" selected >Choose...</option>                                 
+                                      <option <% if(arrData.status=='active'){ %>selected="selected" <% }%> value="active">Active</option>
+                                      <option <% if(arrData.status=='inactive'){ %>selected="selected" <% }%> value="inactive">Inactive</option>     
+                                      <option <% if(arrData.status=='block'){ %>selected="selected" <% }%> value="block">Block</option>                                             
+                                    </select>
+                                </div>                  
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+
+                    <div class="form-group field">
+                    <div class="col-md-6 col-md-offset-3">
+                    <button id="send" type="submit" class="btn btn-success submitPos">Submit</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+<!-- <script src="<%= adminbaseurl %>vendors/validator/validator.js"></script> -->
+<!-- page content -->
+<%- include ../partials/footer %>
+
+<script type="text/javascript">
+  function blockChar(e){
+      var k;
+      document.all ? k = e.keyCode : k = e.which;
+      return (k >= 48 && k <= 57);
+      }
+  </script> 
+
+ <script language="JavaScript">
+  var formOK = false;
+  
+  function validatePDF(objFileControl){
+   var file = objFileControl.value;
+   var len = file.length;
+   var ext = file.slice(len - 4, len);
+   if(ext.toUpperCase() == ".PDF"){
+     formOK = true;
+   }
+   else{
+     formOK = false;
+     alert("Only PDF files allowed.");
+   }
+  }
+  </script> 
+<script>
+    
+  function ValidateEmail() 
+  {
+      var $email = $('form input[name="email'); //change form to id or containment selector
+  var re = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
+  if ($email.val() == '' || !re.test($email.val()))
+  {
+      alert('Please enter a valid email address.');
+      return false;
+  }
+  }
+  </script>
+
+<script>
+function preView() {
+  var fileInput = document.getElementById('profile_picture');
+  var filePath = fileInput.value;
+  var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+  if(!allowedExtensions.exec(filePath)){
+  alert('Please upload file having extensions .jpeg/.jpg/.png only.');
+  fileInput.value = '';
+  return false;
+  }else{
+  //Image preview
+  if (fileInput.files && fileInput.files[0]) {
+  var reader = new FileReader();
+  reader.onload = function(){
+  var output = document.getElementById('preview');
+  output.src = reader.result;
+  };
+  reader.readAsDataURL(event.target.files[0]);
+  };
+  }
+  }
+  </script>
+
+
+
+  

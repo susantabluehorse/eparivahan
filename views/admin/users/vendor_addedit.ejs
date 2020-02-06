@@ -1,0 +1,502 @@
+<%- include ../partials/sidebar %>       
+<%- include ../partials/header %>
+
+
+<style type="text/css">
+.send {margin-top: 30px;}
+img.view-image {
+    width: 50px !important;
+    height: 34px;
+    padding: 2px;
+}
+</style>
+
+<a name="top" id="top"></a>
+<div class="right_col" role="main">
+<div class="">
+    <div class="page-title">
+      <div class="title_left">
+        <h3><%=title%></h3>            
+      </div>
+      <div class="title_right text-right">
+          <a href="<%= adminbaseurl %>users/vendor-list" class="btn btn-success right">List of Vendor</a>
+      </div>          
+    </div>
+  <div class="clearfix"></div>
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <%- include ../messages %>
+          <div class="x_content">
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#personal_info">Personal Info</a></li>
+                <li><a data-toggle="tab" href="#vendorcategory">Vendor Category</a></li>
+                <li><a data-toggle="tab" href="#company_profile">Company Profile</a></li>
+                <li><a data-toggle="tab" href="#work_profile">Work Profile</a></li>
+            </ul><br>
+
+            <%
+              var submit_btn_text = "Save";
+              var disable_username = '';
+              if(arrData != '') {
+                submit_btn_text = "Update";
+                disable_username = 'disabled="disabled"';
+              }
+            %>
+
+            <div class="tab-content">
+                <div id="personal_info" class="tab-pane fade in active">
+                  <form class="user-info" id="personal_info_form" class="form-horizontal form-label-left" novalidate  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor">
+                    <input id="user_type" name="user_type" type="hidden" value="vendor">
+                    <input id="info" name="info" type="hidden" value="personal info">
+                    <input class="vendor_id" name="id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Name</label>
+                                  <input id="name" class="form-control col-md-7 col-xs-12" name="name" type="text" onkeyup="this.value=this.value.replace(/[^A-Za-z ]/g,'');" required="required" value="<%= arrData ? arrData.name : '' %>">
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Email</label>
+                                  <input id="email" class="form-control col-md-7 col-xs-12" name="email" type="email" onblur="ValidateEmail()"  onkeyup="this.value=this.value.replace(/[ ]/g,'');" required="required" value="<%= arrData ? arrData.email : '' %>">
+                              </div>                              
+                          </div><!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->
+        
+                   
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Mobile</label>
+                                  <input id="mobile" class="form-control col-md-7 col-xs-12" name="mobile" type="text" placeholder="10 digit mobile number" required="required" value="<%= arrData ? arrData.mobile : '' %>"  maxlength="10" minlength="10" pattern="^[6-9]\d{9}$" onkeypress="return blockChar(event)">
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Alternative Mobile</label>
+                                  <input id="alter_mobile" class="form-control col-md-7 col-xs-12" name="alter_mobile" type="text" required="required" value="<%= arrData ? arrData.alter_mobile : '' %>" placeholder="10 digit mobile number"  maxlength="10" minlength="10" pattern="^[6-9]\d{9}$" onkeypress="return blockChar(event)">
+                              </div>                              
+                          </div><!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->
+
+
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Permanent Address</label>
+                                  <textarea id="address" class="form-control col-md-7 col-xs-12" name="address" type="text" required="required"><%= arrData ? arrData.address : '' %></textarea>  
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Current Address</label>
+                                  <input type="checkbox" name="checkadd" onclick="filladdress(this.form)"><h6 style="display: inline-block; margin-left: 5px; margin-top: 0;" >Same as Permanent Address</h6> 
+                                  <textarea id="current_address" class="form-control col-md-7 col-xs-12" name="current_address" type="text" required="required" ><%= arrData ? arrData.current_address : '' %></textarea>
+                              </div>                              
+                          </div>  <!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->
+
+
+
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">PAN No.</label>
+                                  <input id="pan_no" class="form-control col-md-7 col-xs-12" name="pan_no" type="text" onblurrrr="ValidatePan()" required="required" value="<%= arrData ? arrData.pan_no : '' %>">
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Aadhar Card No</label>
+                                  <input id="aadharNo" class="form-control col-md-7 col-xs-12" maxlength="12" minlength="12"  onkeyup="this.value = this.value.replace (/\D/g, '')" name="aadharNo" type="text" required="required" value="<%= arrData ? arrData.aadharNo : '' %>">
+                              </div>                              
+                          </div><!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->
+
+
+
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Upload PAN Card</label>
+                                  <input id="file_pan" class="form-control col-md-7 col-xs-12" name="file_pan" type="file" value="">
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Upload Aadhar Card</label>
+                                  <input id="file_aadhar" class="form-control col-md-7 col-xs-12" name="file_aadhar" type="file" value="">
+                              </div>                              
+                          </div><!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->
+
+
+
+                    <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Date of Birth</label>
+                                  <input id="dob" class="form-control col-md-7 col-xs-12" name="dob" type="date" value="<%= arrData ? arrData.dob : '' %>">
+                              </div>   
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div class="row">
+                                <% if(typeof uploaded_files !== 'undefined') { %>
+                                  <% if(uploaded_files['pan'] == 'yes') { var url = baseurl + '/user_contents/vendor/' + arrData.v_id + '/pan.jpg'; %>                                  
+                                      <div class="col-md-6 col-sm-6 col-xs-6">
+                                          <label class="control-label">View PAN Card</label>
+                                          <a href="<%=url%>" target="_blank"><img class="form-control view-image" src="<%=url%>" width="50"></a>
+                                      </div><!-- .cols -->                                                                    
+                                  <% } %>
+                                      
+                                  <% if(uploaded_files['aadhar'] == 'yes') { var url = baseurl + '/user_contents/vendor/' + arrData.v_id + '/aadhar.jpg'; %>                                  
+                                      <div class="col-md-6 col-sm-6 col-xs-6">
+                                          <label class="control-label">View Aadhar Card</label>
+                                          <a href="<%=url%>" target="_blank"><img class="form-control view-image" src="<%=url%>" width="50"></a>
+                                      </div><!-- .cols -->                                                               
+                                  <% } %>
+                                <% } %>
+                              </div>
+                            </div>                                                      
+                          </div><!-- .row --> 
+                      </div><!-- .cols -->
+                    </div><!-- .form-group -->  
+                    
+                    <div class="col-md-6">
+                        <div class="item form-group field">                                        
+                            <div class="row">
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+                                    <label class="control-label">Status<span class="required">*</span></label>
+                                    <select name="status" class="form-control >   
+                                        <option  value="" selected >Choose...</option>                                 
+                                      <option <% if(arrData.status=='active'){ %>selected="selected" <% }%> value="active">Active</option>
+                                      <option <% if(arrData.status=='inactive'){ %>selected="selected" <% }%> value="inactive">Inactive</option>     
+                                      <option <% if(arrData.status=='block'){ %>selected="selected" <% }%> value="block">Block</option>                                             
+                                    </select>
+                                </div>                  
+                            </div>
+                          </div>
+                      </div>
+
+
+                    
+                    <!-- <div class="item form-group field">
+                      <div class="col-xs-12">
+                          <div class="row">
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Username</label>
+                                  <input id="username" class="form-control col-md-7 col-xs-12" name="username" type="text" required="required" value="<%= arrData ? arrData.username : '' %>" <%= disable_username %>>
+                              </div>
+                              <div class="col-md-6 col-sm-6 col-xs-12">
+                                  <label class="control-label">Password</label>
+                                  <input id="password" class="form-control col-md-7 col-xs-12" name="password" type="password" required="required" value="<%= arrData ? arrData.password : '' %>">
+                              </div>                              
+                          </div>
+                      </div>
+                    </div> -->
+
+
+                    <div class="form-group field">                      
+                        <!-- <button type="button" class="btn btn-success send">Submit</button> -->
+                        <input type="button" class="btn btn-success btn-primary btn-block send" value="<%= submit_btn_text %>"/>
+                    </div>
+                  </form>
+                </div>
+
+
+
+
+                <div id="vendorcategory" class="tab-pane fade">
+                  
+                    <form class="user-info" id="category_info_form" class="form-horizontal form-label-left" novalidate method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor">
+                    <input id="user_type" name="user_type" type="hidden" value="vendor">
+                    <input id="info" name="info" type="hidden" value="vendor category">
+                    <input class="vendor_id" name="id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+
+                    <div class="item form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Select Catagory</label>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select name="vendor_category" id="vendor_category" class="form-control" required="required">
+                            <option  value="" selected disabled>Choose...</option>
+                            <% category_list.forEach(function(vendorList){%>
+                              <option <% if(arrData.vendor_category==vendorList.id){ %> selected="selected" <% }%> value="<%=vendorList.id%>"><%=vendorList.title%></option>
+                              <% })%>
+                        </select>
+                      </div>
+                    </div> 
+  
+                    <div class="item form-group field">
+                      <label class="control-label col-md-3 col-sm-3 col-xs-12">Select Sub Category</label>
+                      <div class="col-md-6 col-sm-6 col-xs-12">
+                        <select name="vendor_sub_category" id="vendor_sub_category" class="form-control" >
+                            <option  value="" selected disabled>Choose...</option>
+                            <% if (subcategories_list != null && subcategories_list != ''){ %>
+                              <% subcategories_list.forEach(function(subvendorList){%>
+                              <option <% if(arrData.vendor_Subcategory==subvendorList.id){ %> selected="selected" <% }%> value="<%=subvendorList.id%>"><%=subvendorList.title%></option>
+                              <% }) }%>
+                        </select>
+                      </div>
+                    </div> 
+                  
+                    <div class="form-group field">
+                      <div class="col-md-6 col-md-offset-3">                       
+                          <input type="button" id="category_sent" class="btn btn-success btn-primary btn-block send disabled" value="Update"/>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+
+
+
+
+                <div id="company_profile" class="tab-pane fade">
+                  
+                  <form class="user-info" id="company_info_form" class="form-horizontal form-label-left" novalidate method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>users/addedit/vendor">
+                    <input id="user_type" name="user_type" type="hidden" value="vendor">
+                    <input id="info" name="info" type="hidden" value="company profile">
+                    <input class="vendor_id" name="id" type="hidden" value="<%= arrData ? arrData.v_id : '' %>">
+
+                    <div class="item form-group field">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company Name</label>
+                                    <input id="company_name" class="form-control col-md-7 col-xs-12" name="company_name" type="text" required="required" value="<%= arrData ? arrData.company_name : '' %>">
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company Mobile</label>
+                                    <input id="company_mobile" class="form-control col-md-7 col-xs-12" name="company_mobile" type="text" required="required" value="<%= arrData ? arrData.company_mobile : '' %>" placeholder="10 digit mobile number" maxlength="10" minlength="10" pattern="^[6-9]\d{9}$" onkeypress="return blockChar(event)">
+                                </div>                              
+                            </div><!-- .row --> 
+                        </div><!-- .cols -->
+                      </div><!-- .form-group -->
+                      
+
+                    <div class="item form-group field">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company Address</label>
+                                    <textarea id="company_address" class="form-control col-md-7 col-xs-12" name="company_address" type="text" required="required"> <%= arrData ? arrData.company_address : '' %> </textarea>  
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company Email</label>
+                                    <input id="company_email" class="form-control col-md-7 col-xs-12" name="company_email" onblur="ValidateComEmail()"  onkeyup="this.value=this.value.replace(/[ ]/g,'');" type="text" required="required" value="<%= arrData ? arrData.company_email : '' %>">
+                                </div>                              
+                            </div><!-- .row --> 
+                        </div><!-- .cols -->
+                      </div><!-- .form-group -->
+
+
+                    <div class="item form-group field">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company PAN No.</label>
+                                    <input id="company_pan_no" class="form-control col-md-7 col-xs-12" name="company_pan_no" onblur="ValidateComPan()" type="text" required="required" value="<%= arrData ? arrData.company_pan_no : '' %>">                                    
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Company GST No.</label>
+                                    <input id="company_gst_no" class="form-control col-md-7 col-xs-12" name="company_gst_no" type="text" required="required" value="<%= arrData ? arrData.gst_no : '' %>">
+                                </div>                              
+                            </div><!-- .row --> 
+                        </div><!-- .cols -->
+                      </div><!-- .form-group -->
+
+
+
+                      <div class="item form-group field">
+                          <div class="col-xs-12">
+                              <div class="row">
+                                  <div class="col-md-6 col-sm-6 col-xs-12">
+                                      <label class="control-label">Upload Company PAN</label>
+                                      <input id="file_company_pan" class="form-control col-md-7 col-xs-12" name="file_company_pan" type="file" value="">
+                                  </div>
+                                  <div class="col-md-6 col-sm-6 col-xs-12">
+                                      <label class="control-label">Upload Company GST</label>
+                                      <input id="file_company_gst" class="form-control col-md-7 col-xs-12" name="file_company_gst" type="file" value="">
+                                  </div>                              
+                              </div><!-- .row --> 
+                          </div><!-- .cols -->
+                        </div><!-- .form-group -->
+                        
+
+                    <div class="item form-group field">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Upload Company Document</label>
+                                    <input id="file_company_document" class="form-control col-md-7 col-xs-12" name="file_company_document" type="file" value="">
+                                </div>
+                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                    <label class="control-label">Referral Code</label>
+                                    <input id="referral_code" class="form-control col-md-7 col-xs-12" name="referral_code" type="text" required="required" value="<%= arrData ? arrData.referral_code : '' %>">
+                                </div>                              
+                            </div><!-- .row --> 
+                        </div><!-- .cols -->
+                      </div><!-- .form-group -->
+
+
+
+                    <!--<div class="item form-group field">
+                        <div class="col-xs-12">
+                            <div class="row">
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label class="control-label">View Company Document</label>
+                                    <a href="http://localhost:3301//user_contents/vendor/180/pan.jpg" target="_blank"><img class="form-control view-image" src="http://localhost:3301//user_contents/vendor/180/pan.jpg" width="50"></a>
+                                </div>
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                    <label class="control-label">View Company PAN</label>
+                                    <a href="http://localhost:3301//user_contents/vendor/180/pan.jpg" target="_blank"><img class="form-control view-image" src="http://localhost:3301//user_contents/vendor/180/pan.jpg" width="50"></a>
+                                </div> 
+                                <div class="col-md-4 col-sm-4 col-xs-4">
+                                  <label class="control-label">View Company GST</label>
+                                  <a href="http://localhost:3301//user_contents/vendor/180/pan.jpg" target="_blank"><img class="form-control view-image" src="http://localhost:3301//user_contents/vendor/180/pan.jpg" width="50"></a>
+                                </div>                             
+                            </div>
+                        </div>
+                      </div>-->
+
+  
+
+                    <div class="form-group field">                      
+                        <!-- <button type="button" class="btn btn-success send">Submit</button> -->
+                        <input type="button" id="company_sent" class="btn btn-success btn-primary btn-block send disabled" value="Update"/>
+                    </div>
+                  </form>
+                </div>
+
+
+
+                <!-- --------------------------- Dynamically load sub-category form ------------------------------------------- -->
+                <div id="work_profile" class="tab-pane fade">
+                <%- include artist_talent %>
+                </div><!-- .work_profile -->
+                <!-- --------------------------- Dynamically load sub-category form ------------------------------------------- -->
+
+            
+            </div><!-- .tab-content -->
+
+            
+          </div><!-- x_content -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- page content -->
+<%- include ../partials/footer %>
+
+
+
+<script>
+function preView()  {
+    var fileInput = document.getElementById('profile_picture');
+    var filePath = fileInput.value;
+    var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+    if(!allowedExtensions.exec(filePath)){
+        alert('Please upload file having extensions .jpeg/.jpg/.png  only.');
+        fileInput.value = '';
+        return false;
+    }else{
+        //Image preview
+        if (fileInput.files && fileInput.files[0]) {
+        var reader = new FileReader();             
+            reader.onload = function(){
+            var output = document.getElementById('preview');
+            output.src = reader.result;
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        
+        };
+    }
+}
+  
+
+ 
+function blockChar(e){
+    var k;
+    document.all ? k = e.keyCode : k = e.which;
+    return (k >= 48 && k <= 57);
+}
+
+
+    
+function ValidateEmail() 
+{
+        var $email = $('form input[name="email'); //change form to id or containment selector
+    var re = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
+    if ($email.val() == '' || !re.test($email.val()))
+    {
+        alert('Please enter a valid email address.');
+        return false;
+    }
+}
+
+function ValidateComEmail() 
+{
+        var $company_email = $('form input[name="company_email'); //change form to id or containment selector
+    var re = /[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,4}/igm;
+    if ($company_email.val() == '' || !re.test($company_email.val()))
+    {
+        alert('Please enter a valid email address.');
+        return false;
+    }
+}
+
+function filladdress(f) {
+    if(f.checkadd.checked == true) {
+    f.current_address.value = f.address.value;       
+    }
+    if(f.checkadd.checked == false) {
+    f.current_address.value = null; 
+
+    }
+}
+
+function ValidatePan() 
+    {
+        var $pan_no = $('form input[name="pan_no'); //change form to id or containment selector
+    var re = /[A-Za-z]{5}\d{4}[A-Za-z]{1}/igm;
+    if ($pan_no.val() == '' || !re.test($pan_no.val()))
+    {
+        alert('Please enter a valid pan no.');
+        return false;
+    }
+}
+
+function ValidateComPan() 
+    {
+        var $company_pan_no = $('form input[name="company_pan_no'); //change form to id or containment selector
+    var re = /[A-Za-z]{5}\d{4}[A-Za-z]{1}/igm;
+    if ($company_pan_no.val() == '' || !re.test($company_pan_no.val()))
+    {
+        alert('Please enter a valid pan no.');
+        return false;
+    }
+}
+
+function validateComGST(){
+    var $GST= $('form input[name="company_gst_no"]');
+    var regex= /^([0]{1}[1-9]{1}|[1-2]{1}[0-9]{1}|[3]{1}[0-7]{1})([a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ]{1}[0-9a-zA-Z]{1})+$/g;
+    if($GST.val()=='' || !regex.test($GST.val()))
+    {
+        alert('Please enter a valid GST number');
+        return flase
+    }
+
+}
+
+</script>
+
+<%
+    if(arrData!=''){
+    %>
+        <script type="text/javascript"> $(".send").removeClass("disabled");</script>
+    <%
+    }
+%>

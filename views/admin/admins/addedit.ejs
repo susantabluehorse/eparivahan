@@ -1,0 +1,112 @@
+      
+<%- include ../partials/header %>
+<%- include ../partials/sidebar %>  
+<style>
+  .padding_remove
+  {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+</style>
+<div class="page-wrapper">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="">
+                    <form id="user-info" class="form-horizontal"  method="post" enctype="multipart/form-data" action="<%= adminbaseurl %>admin-user/add" >
+                        <div class="">
+                            <h3 class="card-title"><%=title%></h3>
+                            <%- include ../messages %>
+                            <div class="title_right text-right">
+                                <a href="<%= adminbaseurl %>admin-user" class="btn btn-success right">Go To List</a>
+                            </div><br>   
+                            <div class="row">
+                              <div class="form-group col-md-4">
+                                  <label  class="text-left control-label col-form-label">Name <span class="required">*</span></label>
+                                  <div class="col-sm-12 padding_remove">
+                                      <input id="name" class="form-control" name="name" type="text" required="required" value="<%= arrData ? arrData.name : '' %>">
+                                  </div>
+                              </div>
+                              <div class="form-group col-md-4">
+                                  <label  class="text-left control-label col-form-label">User Name <span class="required">*</span></label>
+                                  <div class="col-sm-12 padding_remove">
+                                      <input id="username" class="form-control" name="username" type="text" required="required" value="<%= arrData ? arrData.username : '' %>">
+                                  </div>
+                              </div>
+                          
+                              <div class="form-group col-md-4">
+                                  <label  class="text-right control-label col-form-label">Password <span class="required">*</span></label>
+                                  <div class="col-sm-12 padding_remove">
+                                      <% if(arrData.length==0){ %>
+                                        <input id="password" class="form-control col-md-7 col-xs-12"  name="password" type="password" required="required" value="<%= arrData ? arrData.password : '' %>">
+                                        <% }else{ %>
+                                          <input id="password" class="form-control col-md-7 col-xs-12" readonly disabled  name="password" type="password" required="required" value="<%= arrData ? arrData.password : '' %>">
+                                        <% } %>
+                                  </div>
+                              </div>
+                        
+
+                            <div class="form-group col-md-4">
+                                <label  class="text-left control-label col-form-label">Email <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <input id="email" class="form-control" name="email" type="text" required="required" value="<%= arrData ? arrData.email : '' %>">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label  class="text-left control-label col-form-label">Alternate Email <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <input id="alternate_email" class="form-control" name="alternate_email" type="text" required="required" value="<%= arrData ? arrData.alternate_email : '' %>">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label  class="text-left control-label col-form-label">Mobile <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <input id="mobile" class="form-control" name="mobile" type="text" required="required" value="<%= arrData ? arrData.mobile : '' %>">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label  class="text-left control-label col-form-label">Alternate Mobile <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <input id="alternate_mobile" class="form-control" name="alternate_mobile" type="text" required="required" value="<%= arrData ? arrData.alternate_mobile : '' %>">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="cono1" class="text-left control-label col-form-label">Address</label>
+                                <div class="col-sm-12 padding_remove">
+                                    <textarea  type="text" id="address" name="address" class="form-control textareaheight" required="required" ><%= arrData ? arrData.address : '' %></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label class="text-left control-label col-form-label">Status <span class="required">*</span></label>
+                                <div class="col-sm-12 padding_remove">
+                                    <select name="status"  class="form-control" required="required">  
+                                        <option  value="" selected disabled>Choose...</option>                              
+                                        <option <% if(arrData.status=='active'){ %>selected="selected" <% }%> value="active">Active</option>
+                                        <option <% if(arrData.status=='inactive'){ %>selected="selected" <% }%> value="inactive">Inactive</option>                 
+                                      </select>
+                                </div>
+                            </div>
+                          </div>
+                        </div>
+                    
+
+                        <div class="border-top float-right">
+                          <div class="">
+                              <input type="hidden" name="update_id" value="<%= arrData ? arrData.admin_id : '' %>">
+                              <button  id="send" type="submit" class="btn btn-primary">Submit</button>
+                          </div>                          
+                      </div>
+
+                  </form>
+              </div>
+          </div>           
+      </div>
+  </div>
+</div>
+</body>
+
+</html>
+<%- include ../partials/footer %>
+
+
+
