@@ -19,22 +19,21 @@ var flash               = require('connect-flash');
 ///consol.log(config.host);
 ///passport
 passport.use(new LocalStrategy(function(username, password, done) {
-   models.admins.findOne({ where: {username:username,status:"active"} }).then(function(data) {
-	console.log(data+"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-      var user = data;
-      if(user === null) {
-         return done(null, false, {message: 'Invalid username or password'});
+  models.admins.findOne({ where: {username:username,status:"active"} }).then(function(data) {
+    console.log(data+"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+    var user = data;
+    if(user === null) {
+      return done(null, false, {message: 'Invalid username or password'});
+    } else {
+      user = data.toJSON();
+      if(!bcrypt.compareSync(password,user.password)) {
+        console.log(bcrypt.compareSync(password, user.password));
+        return done(null, false, {message: 'Invalid  password'});
       } else {
-         user = data.toJSON();
-        
-         if(!bcrypt.compareSync(password,user.password)) {
-            console.log(bcrypt.compareSync(password, user.password));
-            return done(null, false, {message: 'Invalid  password'});
-         } else {
-            return done(null, user);
-         }
+        return done(null, user);
       }
-   });
+    }
+  });
 }));
 
 
@@ -44,9 +43,9 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(username, done) {
-   models.admins.findOne({ where: {username:username} }).then(function(user) {
-      done(null, user);
-   });
+  models.admins.findOne({ where: {username:username} }).then(function(user) {
+    done(null, user);
+  });
 });
 
 
@@ -69,7 +68,7 @@ app.use(bodyParser({limit: '50MB'}))
 //});
 
 
-app.set('port', process.env.PORT || 3302);
+app.set('port', process.env.PORT || 3304);
 
 var server = app.listen(app.get('port'), function() {
 	
