@@ -16,34 +16,34 @@ var flash               = require('connect-flash');
 
 ///consol.log(config.host);
 ///passport
-passport.use(new LocalStrategy(function(username, password, done) {
-  models.admins.findOne({ where: {username:username,status:"active"} }).then(function(data) {
-    console.log(data+"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-    var user = data;
-    if(user === null) {
-      return done(null, false, {message: 'Invalid username or password'});
-    } else {
-      user = data.toJSON();
-      if(!bcrypt.compareSync(password,user.password)) {
-        console.log(bcrypt.compareSync(password, user.password));
-        return done(null, false, {message: 'Invalid  password'});
-      } else {
-        return done(null, user);
-      }
-    }
-  });
-}));
+// passport.use(new LocalStrategy(function(username, password, done) {
+//   models.admins.findOne({ where: {username:username,status:"active"} }).then(function(data) {
+//     console.log(data+"jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+//     var user = data;
+//     if(user === null) {
+//       return done(null, false, {message: 'Invalid username or password'});
+//     } else {
+//       user = data.toJSON();
+//       if(!bcrypt.compareSync(password,user.password)) {
+//         console.log(bcrypt.compareSync(password, user.password));
+//         return done(null, false, {message: 'Invalid  password'});
+//       } else {
+//         return done(null, user);
+//       }
+//     }
+//   });
+// }));
 
-passport.serializeUser(function(user, done) {
-	console.log(user.username);
-  done(null, user.username);
-});
+// passport.serializeUser(function(user, done) {
+// 	console.log(user.username);
+//   done(null, user.username);
+// });
 
-passport.deserializeUser(function(username, done) {
-  models.admins.findOne({ where: {username:username} }).then(function(user) {
-    done(null, user);
-  });
-});
+// passport.deserializeUser(function(username, done) {
+//   models.admins.findOne({ where: {username:username} }).then(function(user) {
+//     done(null, user);
+//   });
+// });
 
 ///Express session store and expiration
 
@@ -107,14 +107,14 @@ app.use(passport.session());
 
 ///routes
 var routes 				= require('./routes/index');
-var authentication 		= require('./routes/auth.js');
+//var authentication 		= require('./routes/auth.js');
 var api 				= require('./routes/api');
-var admin 				= require('./routes/admin');
+//var admin 				= require('./routes/admin');
 app.use(cors());
 app.use('/', routes);
 app.use('/api/v1', api);
-app.use('/admin', admin);
-app.use('/auth', authentication);
+//app.use('/admin', admin);
+//app.use('/auth', authentication);
 /// catch 404 and forwarding to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
