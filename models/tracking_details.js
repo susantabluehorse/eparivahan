@@ -73,11 +73,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     },
     start_date: {
-      type: DataTypes.DATE(),
+      type: 'DATE',
       allowNull: false
     },
     end_date: {
-      type: DataTypes.DATE(),
+      type: 'DATE',
       allowNull: false
     },
     created_by: {
@@ -89,7 +89,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false
     }, 
     status: {
-      type: DataTypes.ENUM('0','1'),
+      type: DataTypes.STRING(100),
       allowNull: false
     },
     created_at: {

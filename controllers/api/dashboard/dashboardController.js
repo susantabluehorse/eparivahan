@@ -28,21 +28,26 @@ exports.getTrackingCount = async function(req, res, next) {
     var role = req.body.role;
     var fromDate = req.body.fromDate;
     var toDate = req.body.toDate;
-    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
-       // var blockList =await sequelize.query("SELECT * FROM block_list limit 1",{ type: Sequelize.QueryTypes.SELECT });
-
-        models.block_list.create({
-                
-                blocked_by_enterprise_id : 1,
-                blocked_enterprise_id : 2,
-                blocked_status : 0,
-                blocked_by : 33,
-                created_at: '2020-02-07 08:38:20',
-                updated_at: '2020-02-07 08:38:20'
-                
+    if(userId !='' && role !='' && fromDate !='' && toDate !=''){        
+        var Trackings =await sequelize.query("SELECT t.status, COUNT(t.id) as count FROM tracking_details as t INNER JOIN users as u ON u.id=t.tracked_by_user_id where u.user_type='"+role+"' and t.tracked_by_user_id="+userId+" and date(t.start_date)>='"+fromDate+"' and date(t.end_date) <='"+toDate+"' GROUP BY t.status;",{ type: Sequelize.QueryTypes.SELECT });
+        var TrackingCount = [];
+        if(Trackings.length > 0){
+            var tc = [];
+            Trackings.forEach(function(e,i){
+                tc[e.status]=e.count
+                /*if(TrackingCount !=''){
+                    TrackingCount += ','+e.status+':'+e.count;
+                } else {
+                    TrackingCount += e.status+':'+e.count;
+                }*/
+                /*var status = e.status;
+                TrackingCount.push({
+                    status:e.count
+                }); */   
             });
-
-        res.status(200).json({ success: "false",message: "All fileds are required!"});
+            TrackingCount.push(tc)
+        }
+        res.status(200).json({ success: "false",message: "All fileds are required!",data:TrackingCount});
     }else{
         res.status(200).json({ success: "false",message: "All fileds are required!"});
     }   
