@@ -4,8 +4,8 @@ var SECRET = 'nodescratch';
 var fs = require('file-system');
 var bcrypt = require('bcrypt-nodejs');
 var config = require('../../../config/config.json');
-const emailConfig = require('../../../config/email-config')();
-const mailgun = require('mailgun-js')(emailConfig);
+//const emailConfig = require('../../../config/email-config')();
+//const mailgun = require('mailgun-js')(emailConfig);
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize(
     config.development.database, 
