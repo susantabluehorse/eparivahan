@@ -2,11 +2,11 @@ var express = require('express');
 var router = express.Router();
 var expressValidator = require('express-validator');
 router.use(expressValidator());
-var analysisController = require('../controllers/api/dashboard/analysisController');
+var analysisController = require('../controllers/api/analysis/analysisController');
 var dashboardController = require('../controllers/api/dashboard/dashboardController');
-var organizationController = require('../controllers/api/dashboard/organizationController');
-var reportController = require('../controllers/api/dashboard/reportController');
-var trackingController = require('../controllers/api/dashboard/trackingController');
+var organizationController = require('../controllers/api/organization/organizationController');
+var reportController = require('../controllers/api/report/reportController');
+var trackingController = require('../controllers/api/tracking/trackingController');
 
 /*Analysis Controller Start*/
 /*Analysis Controller End*/
