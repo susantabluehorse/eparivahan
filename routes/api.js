@@ -15,6 +15,7 @@ var trackingController = require('../controllers/api/tracking/trackingController
 router.post('/dashboard/tracking-count',dashboardController.getTrackingCount);
 router.post('/dashboard/tracking-history',dashboardController.getTrackingHistory);
 router.post('/dashboard/tracking-analysis',dashboardController.getTrackingAnalysis);
+router.post('/dashboard/failed-analysis',dashboardController.getFailedAnalysis);
 router.post('/dashboard/tracking-add',dashboardController.getTrackingAdd);
 router.post('/dashboard/organization-search',dashboardController.getOrganizationSearch);
 router.post('/dashboard/tracking-search',dashboardController.getTrackingSearch);

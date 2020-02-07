@@ -28,21 +28,17 @@ exports.getTrackingCount = async function(req, res, next) {
     var role = req.body.role;
     var fromDate = req.body.fromDate;
     var toDate = req.body.toDate;
+    var TrackingCount={};
     if(userId !='' && role !='' && fromDate !='' && toDate !=''){        
-        var Trackings =await sequelize.query("SELECT t.status, COUNT(t.id) as count FROM tracking_details as t INNER JOIN users as u ON u.id=t.tracked_by_user_id where u.user_type='"+role+"' and t.tracked_by_user_id="+userId+" and date(t.start_date)>='"+fromDate+"' and date(t.end_date) <='"+toDate+"' GROUP BY t.status;",{ type: Sequelize.QueryTypes.SELECT });
-        var TrackingCount = [];
+        var Trackings =await sequelize.query("SELECT t.status,COUNT(t.id) as count FROM tracking_details as t INNER JOIN users as u ON u.id=t.tracked_by_user_id where u.user_type='"+role+"' and t.tracked_by_user_id="+userId+" and date(t.start_date)>='"+fromDate+"' and date(t.end_date) <='"+toDate+"' GROUP BY t.status;",{ type: Sequelize.QueryTypes.SELECT });
         if(Trackings.length > 0){
-            var tc = [];
-            Trackings.forEach(function(e,i){
-                TrackingCount.push({
-                    [e.status]:e.count
-                });     
+            Trackings.forEach(function(k,p){
+                TrackingCount[k.status]=k.count;    
             });
-            TrackingCount.push(tc)
         }
-        res.status(200).json({ success: "false",message: "All fileds are required!",data:TrackingCount});
+        res.status(200).json({data:TrackingCount});
     }else{
-        res.status(200).json({ success: "false",message: "All fileds are required!"});
+        res.status(200).json({ success: "false",data: "All fileds are required!"});
     }   
 }
 /*************************TrackingCount / TrackingSnapshot ends *******************************/
@@ -73,6 +69,20 @@ exports.getTrackingHistory = async function(req, res, next) {
 
 /************************* Tracking Analysis start *******************************/
 exports.getTrackingAnalysis = async function(req, res, next) {
+
+    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
+    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
+    
+    //if(category_list){
+        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
+    // }else{
+    //     res.status(200).send({ message: "No category found" });
+    // }    
+}
+/************************* Tracking Analysis ends *******************************/
+
+/************************* Tracking Analysis start *******************************/
+exports.getFailedAnalysis = async function(req, res, next) {
 
     var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
     var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
