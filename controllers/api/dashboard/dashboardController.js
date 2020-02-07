@@ -29,11 +29,23 @@ exports.getTrackingCount = async function(req, res, next) {
     var fromDate = req.body.fromDate;
     var toDate = req.body.toDate;
     if(userId !='' && role !='' && fromDate !='' && toDate !=''){
-        //var check_email =await sequelize.query("SELECT * FROM candidates  WHERE username='"+email+"' limit 1",{ type: Sequelize.QueryTypes.SELECT });
+       // var blockList =await sequelize.query("SELECT * FROM block_list limit 1",{ type: Sequelize.QueryTypes.SELECT });
+
+        models.block_list.create({
+                
+                blocked_by_enterprise_id : 1,
+                blocked_enterprise_id : 2,
+                blocked_status : 0,
+                blocked_by : 33,
+                created_at: '2020-02-07 08:38:20',
+                updated_at: '2020-02-07 08:38:20'
+                
+            });
+
         res.status(200).json({ success: "false",message: "All fileds are required!"});
     }else{
         res.status(200).json({ success: "false",message: "All fileds are required!"});
-    }  
+    }   
 }
 /*************************TrackingCount / TrackingSnapshot ends *******************************/
 
