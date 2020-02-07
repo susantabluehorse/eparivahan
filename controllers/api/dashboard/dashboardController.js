@@ -24,16 +24,29 @@ var sequelize = new Sequelize(
 /*************************TrackingCount / TrackingSnapshot start *******************************/
 exports.getTrackingCount = async function(req, res, next) {
     console.log(req.body);
-    var userId = req.body.userId;
-    var role = req.body.role;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
-        //var check_email =await sequelize.query("SELECT * FROM candidates  WHERE username='"+email+"' limit 1",{ type: Sequelize.QueryTypes.SELECT });
-        res.status(200).json({ success: "false",message: "All fileds are required!"});
-    }else{
-        res.status(200).json({ success: "false",message: "All fileds are required!"});
-    }  
+   var userId = req.body.userId;
+   var role = req.body.role;
+   var fromDate = req.body.fromDate;
+   var toDate = req.body.toDate;
+   if(userId !='' && role !='' && fromDate !='' && toDate !=''){
+      // var blockList =await sequelize.query("SELECT * FROM block_list limit 1",{ type: Sequelize.QueryTypes.SELECT });
+
+       models.country_list.create({
+        id : 248,      
+        full_name : 'tanbir hossain',
+        short_code2 : 'th',
+        short_code3 : 'tan',
+        currency_code : 'rs',
+        currency_name : 'rupies',
+        //created_at: '2020-02-07 08:38:20',
+        //updated_at: '2020-02-07 08:38:20'
+            
+        });
+
+       res.status(200).json({ success: "false",message: "All fileds are required!"});
+   }else{
+       res.status(200).json({ success: "false",message: "All fileds are required!"});
+   } 
 }
 /*************************TrackingCount / TrackingSnapshot ends *******************************/
 
