@@ -21,12 +21,9 @@ var sequelize = new Sequelize(
     }
 );
 
-/*************************candidate sign-up start *******************************/
-
-exports.candidate_registration = async function(req, res, next) {
-
-    console.log(req.body.data);
-    
+/*************************TrackingCount / TrackingSnapshot start *******************************/
+exports.getTrackingCount = async function(req, res, next) {
+    console.log(req.body.data);    
     var password = req.body.data.password;
     var hash = bcrypt.hashSync(password);
     var first_name = req.body.data.first_name;
@@ -107,13 +104,10 @@ exports.candidate_registration = async function(req, res, next) {
         res.status(200).json({ success: "false",message: "All fileds are required!"});
     }  
 }
+/*************************TrackingCount / TrackingSnapshot ends *******************************/
 
-/*************************candidate sign-up ends *******************************/
-
-/*************************candidate sign-in start *******************************/
-
-exports.candidate_signin = async function(req, res, next) {
-
+/*************************Tracking History start *******************************/
+exports.getTrackingHistory = async function(req, res, next) {
     var username = req.body.data.username;
     var password = req.body.data.password;
    //var hash = bcrypt.hashSync(password);
@@ -122,25 +116,22 @@ exports.candidate_signin = async function(req, res, next) {
     var candidate =await sequelize.query("SELECT candidates.*, candidate_looking_for.category, categories.title as category_title from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id LEFT JOIN categories ON candidate_looking_for.category = categories.category_id where candidates.username ='"+username+"'",{ type: Sequelize.QueryTypes.SELECT });
 
     //models.candidates.findOne({ where: {username :username} }).then(function(candidate) {
-        if(candidate.length > 0){
-            if(!bcrypt.compareSync(password, candidate[0].password)){
-                res.status(200).send({ success: "false", message: "Invalid username and password!" });
-            }else{
-                var token =    jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
-                res.status(200).send({ success: "true", message:"successfully login", candidatedetail:candidate[0], token: token }); 
-            }
-            
-        }else{				
+    if(candidate.length > 0){
+        if(!bcrypt.compareSync(password, candidate[0].password)){
             res.status(200).send({ success: "false", message: "Invalid username and password!" });
-        }  
-
+        }else{
+            var token =    jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
+            res.status(200).send({ success: "true", message:"successfully login", candidatedetail:candidate[0], token: token }); 
+        }
+        
+    }else{				
+        res.status(200).send({ success: "false", message: "Invalid username and password!" });
+    }  
 }
+/*************************Tracking History ends *******************************/
 
-/*************************candidate sign-in ends *******************************/
-
-/************************* candidate category list api start *******************************/
-
-exports.candidate_category_list = async function(req, res, next) {
+/************************* Tracking Analysis start *******************************/
+exports.getTrackingAnalysis = async function(req, res, next) {
 
     var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
     var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
@@ -149,10 +140,62 @@ exports.candidate_category_list = async function(req, res, next) {
         res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
     // }else{
     //     res.status(200).send({ message: "No category found" });
-    // }
-    
+    // }    
 }
+/************************* Tracking Analysis ends *******************************/
 
-/************************* candidate category list api ends *******************************/
+/************************* Create tracking start *******************************/
+exports.getTrackingAdd = async function(req, res, next) {
 
+    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
+    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
+    
+    //if(category_list){
+        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
+    // }else{
+    //     res.status(200).send({ message: "No category found" });
+    // }    
+}
+/************************* Create tracking ends *******************************/
 
+/************************* search organization start *******************************/
+exports.getOrganizationSearch = async function(req, res, next) {
+
+    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
+    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
+    
+    //if(category_list){
+        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
+    // }else{
+    //     res.status(200).send({ message: "No category found" });
+    // }    
+}
+/************************* search organization ends *******************************/
+
+/************************* search tracking start *******************************/
+exports.getTrackingSearch = async function(req, res, next) {
+
+    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
+    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
+    
+    //if(category_list){
+        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
+    // }else{
+    //     res.status(200).send({ message: "No category found" });
+    // }    
+}
+/************************* search tracking ends *******************************/
+
+/************************* active Inactive Shipper start *******************************/
+exports.getActiveInactiveShipper = async function(req, res, next) {
+
+    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
+    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
+    
+    //if(category_list){
+        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
+    // }else{
+    //     res.status(200).send({ message: "No category found" });
+    // }    
+}
+/************************* active Inactive Shipper ends *******************************/
