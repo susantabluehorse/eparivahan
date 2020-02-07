@@ -23,47 +23,45 @@ var sequelize = new Sequelize(
 
 /*************************TrackingCount / TrackingSnapshot start *******************************/
 exports.getTrackingCount = async function(req, res, next) {
-    console.log(req.body);
+    //console.log(req.body);
     var userId = req.body.userId;
     var role = req.body.role;
     var fromDate = req.body.fromDate;
     var toDate = req.body.toDate;
-    var TrackingCount={};
-    if(userId !='' && role !='' && fromDate !='' && toDate !=''){        
-        var Trackings =await sequelize.query("SELECT t.status,COUNT(t.id) as count FROM tracking_details as t INNER JOIN users as u ON u.id=t.tracked_by_user_id where u.user_type='"+role+"' and t.tracked_by_user_id="+userId+" and date(t.start_date)>='"+fromDate+"' and date(t.end_date) <='"+toDate+"' GROUP BY t.status;",{ type: Sequelize.QueryTypes.SELECT });
-        if(Trackings.length > 0){
-            Trackings.forEach(function(k,p){
-                TrackingCount[k.status]=k.count;    
-            });
+    var TrackingCount='';// Create return Object
+    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
+        if(role=='admin'){ // Admin get all data
+            var TrackingCount =await sequelize.query("SELECT COALESCE(SUM(IF(`t`.`status` = 'active', 1, 0)),0) AS active, COALESCE(SUM(IF(`t`.`status` = 'tracked', 1, 0)),0) AS tracked, COALESCE(SUM(IF(`t`.`status` = 'not-tracked', 1, 0)),0) AS 'not-tracked', COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completed FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'",{ type: Sequelize.QueryTypes.SELECT });
+        } else { // Shipper get particular thair data
+            var TrackingCount =await sequelize.query("SELECT COALESCE(SUM(IF(`t`.`status` = 'active', 1, 0)),0) AS active, COALESCE(SUM(IF(`t`.`status` = 'tracked', 1, 0)),0) AS tracked, COALESCE(SUM(IF(`t`.`status` = 'not-tracked', 1, 0)),0) AS 'not-tracked', COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completed FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'",{ type: Sequelize.QueryTypes.SELECT });
         }
-        res.status(200).json({data:TrackingCount});
+        res.status(200).json({data:TrackingCount[0]}); //Return json with data or empty
     }else{
-        res.status(200).json({ success: "false",data: "All fileds are required!"});
-    }   
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }
 }
 /*************************TrackingCount / TrackingSnapshot ends *******************************/
 
 /*************************Tracking History start *******************************/
 exports.getTrackingHistory = async function(req, res, next) {
-    var username = req.body.data.username;
-    var password = req.body.data.password;
-   //var hash = bcrypt.hashSync(password);
-
-    //var candidate =await sequelize.query("SELECT candidates.*, candidate_looking_for.category from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id where candidates.username ='"+username+"'",{ type: Sequelize.QueryTypes.SELECT });
-    var candidate =await sequelize.query("SELECT candidates.*, candidate_looking_for.category, categories.title as category_title from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id LEFT JOIN categories ON candidate_looking_for.category = categories.category_id where candidates.username ='"+username+"'",{ type: Sequelize.QueryTypes.SELECT });
-
-    //models.candidates.findOne({ where: {username :username} }).then(function(candidate) {
-    if(candidate.length > 0){
-        if(!bcrypt.compareSync(password, candidate[0].password)){
-            res.status(200).send({ success: "false", message: "Invalid username and password!" });
-        }else{
-            var token =    jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
-            res.status(200).send({ success: "true", message:"successfully login", candidatedetail:candidate[0], token: token }); 
+    //console.log(req.body);
+    var userId = req.body.userId;
+    var role = req.body.role;
+    var shipperId = req.body.shipperId;
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    var TrackingHistory=''; // Create return Object
+    var shipperIdQ = shipperId!='' ? " AND `e`.`id`="+shipperId : "";
+    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
+        if(role=='admin'){ // Admin get all data
+            var TrackingHistory =await sequelize.query("SELECT COUNT(`t`.`id`) AS TotalRows, COUNT(DISTINCT `e`.`id`) AS totalShipper, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS totalcompleted, COUNT(DISTINCT `t`.`tracked_mobile_number`) AS totalNumberTracked, COUNT(DISTINCT `t`.`vehicle_number`) AS totalVehicleTracked FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+"",{ type: Sequelize.QueryTypes.SELECT });
+        } else { // Shipper get particular thair data
+            var TrackingHistory =await sequelize.query("SELECT COUNT(`t`.`id`) AS TotalRows, COUNT(DISTINCT `e`.`id`) AS totalShipper, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS totalcompleted, COUNT(DISTINCT `t`.`tracked_mobile_number`) AS totalNumberTracked, COUNT(DISTINCT `t`.`vehicle_number`) AS totalVehicleTracked FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+"",{ type: Sequelize.QueryTypes.SELECT });
         }
-        
-    }else{				
-        res.status(200).send({ success: "false", message: "Invalid username and password!" });
-    }  
+        res.status(200).json({data:TrackingHistory[0]}); //Return json with data or empty
+    }else{
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }
 }
 /*************************Tracking History ends *******************************/
 
@@ -83,15 +81,42 @@ exports.getTrackingAnalysis = async function(req, res, next) {
 
 /************************* Tracking Analysis start *******************************/
 exports.getFailedAnalysis = async function(req, res, next) {
-
-    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
-    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
-    
-    //if(category_list){
-        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
-    // }else{
-    //     res.status(200).send({ message: "No category found" });
-    // }    
+    //console.log(req.body);
+    var userId = req.body.userId;
+    var role = req.body.role;
+    var shipperId = req.body.shipperId;
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    var type = req.body.type;
+    var FailedAnalysis={}; // Create return Object
+    var shipperIdQ = shipperId!='' ? " AND `e`.`id`="+shipperId : "";
+    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
+        if(role=='admin'){ // Admin get all data
+            if(type=='month'){ // Fetch Data Month Wise
+                var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, {fn MONTHNAME(`t`.`start_date`)} AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active'  AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
+            } else {  // Fetch Data Date Wise
+                var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active'  AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY DATE(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
+            }
+        } else { // Shipper get particular thair data
+            if(type=='month'){ // Fetch Data Month Wise
+                var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, {fn MONTHNAME(`t`.`start_date`)} AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active' AND `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
+            } else {  // Fetch Data Date Wise
+                var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active' AND `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY DATE(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });              
+            }
+        }
+        if(Failed.length > 0){
+            FailedAnalysis['totalFailed']=0;
+            var totalFailed = 0;
+            Failed.forEach(function(k,p){
+                totalFailed = totalFailed + k.totalFailed;
+                FailedAnalysis[k.month]=k.count;    
+            });
+            FailedAnalysis['totalFailed']=totalFailed;
+        }
+        res.status(200).json({data:FailedAnalysis}); //Return json with data or empty
+    }else{
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }   
 }
 /************************* Tracking Analysis ends *******************************/
 
