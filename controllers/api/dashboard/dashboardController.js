@@ -34,16 +34,9 @@ exports.getTrackingCount = async function(req, res, next) {
         if(Trackings.length > 0){
             var tc = [];
             Trackings.forEach(function(e,i){
-                tc[e.status]=e.count
-                /*if(TrackingCount !=''){
-                    TrackingCount += ','+e.status+':'+e.count;
-                } else {
-                    TrackingCount += e.status+':'+e.count;
-                }*/
-                /*var status = e.status;
                 TrackingCount.push({
-                    status:e.count
-                }); */   
+                    [e.status]:e.count
+                });     
             });
             TrackingCount.push(tc)
         }
