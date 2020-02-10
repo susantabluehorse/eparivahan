@@ -104,14 +104,14 @@ exports.getFailedAnalysis = async function(req, res, next) {
                 var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t INNER JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` INNER JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active' AND `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY DATE(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });              
             }
         }
-        if(Failed.length > 0){
-            FailedAnalysis['totalFailed']=0;
-            var totalFailed = 0;
+        if(Failed.length > 0){ //query result length check
+            FailedAnalysis['totalFailed']=0; //total failure array key declared
+            var totalFailed = 0; //total failure variable declared
             Failed.forEach(function(k,p){
-                totalFailed = totalFailed + k.totalFailed;
-                FailedAnalysis[k.month]=k.count;    
+                totalFailed = totalFailed + k.totalFailed; //total failure sum
+                FailedAnalysis[k.month]=k.count; //total failure month or date push in array
             });
-            FailedAnalysis['totalFailed']=totalFailed;
+            FailedAnalysis['totalFailed']=totalFailed; //total failure sum assign to array
         }
         res.status(200).json({data:FailedAnalysis}); //Return json with data or empty
     }else{
