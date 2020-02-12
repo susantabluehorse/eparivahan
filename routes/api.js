@@ -9,6 +9,11 @@ var reportController = require('../controllers/api/report/reportController');
 var trackingController = require('../controllers/api/tracking/trackingController');
 
 /*Analysis Controller Start*/
+router.post('/analysis/search-tracking',analysisController.getSearchTracking);
+router.post('/analysis/complete-tracking-list',analysisController.getCompleteTrackingList);
+router.post('/analysis/change-tracking-status',analysisController.getChangeTrackingStatus);
+router.post('/analysis/enable-disable-tracking',analysisController.getEnableDisableTracking);
+router.post('/analysis/tracking-details',analysisController.getTrackingDetails);
 /*Analysis Controller End*/
 
 /*Dashboard Controller Start*/
