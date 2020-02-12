@@ -75,15 +75,35 @@ exports.getTrackingHistory = async function(req, res, next) {
 
 /************************* Tracking Analysis start *******************************/
 exports.getTrackingAnalysis = async function(req, res, next) {
-
-    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
-    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
-    
-    //if(category_list){
-        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
-    // }else{
-    //     res.status(200).send({ message: "No category found" });
-    // }    
+    var userId = req.body.userId;
+    var role = req.body.role;
+    var shipperId = req.body.shipperId;
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    var type = req.body.type;
+    var shipperIdQ = shipperId!='' ? " AND `e`.`id`="+shipperId : "";
+    if(userId!='' && role!='' && fromDate!='' && toDate!='' && type!=''){
+        if(role=='admin'){ // Admin get all data
+            if(type=='month'){
+                var TrackingAnalysis =await sequelize.query("SELECT {fn MONTHNAME(`t`.`start_date`)} AS month, DATE_FORMAT(`t`.`start_date`,'%Y') AS year, COUNT(`t`.`id`) AS totalTrakingPosted, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS trackingCompleted, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS trackingInitiated, count(`t`.`comment`) AS complaintsLogged, count(`t`.`tracked_by_user_id`) AS shipperOnboarded, COALESCE(SUM(IF(`e`.`status` = 'active', 1, 0)),0) AS activeShipper, COALESCE(SUM(IF(`e`.`status` = 'inactive', 1, 0)),0) AS inactiveShipper FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`t`.`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
+            } else {
+                var TrackingAnalysis =await sequelize.query("SELECT DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS date, COUNT(`t`.`id`) AS totalTrakingPosted, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS trackingCompleted, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS trackingInitiated, count(`t`.`comment`) AS complaintsLogged, count(`t`.`tracked_by_user_id`) AS shipperOnboarded, COALESCE(SUM(IF(`e`.`status` = 'active', 1, 0)),0) AS activeShipper, COALESCE(SUM(IF(`e`.`status` = 'inactive', 1, 0)),0) AS inactiveShipper FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY `t`.`start_date`",{ type: Sequelize.QueryTypes.SELECT });
+            }
+        } else { // Shipper get particular thair data
+            if(type=='month'){
+                var TrackingAnalysis =await sequelize.query("SELECT {fn MONTHNAME(`t`.`start_date`)} AS month, DATE_FORMAT(`t`.`start_date`,'%Y') AS year, COUNT(`t`.`id`) AS totalTrakingPosted, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS trackingCompleted, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS trackingInitiated, count(`t`.`comment`) AS complaintsLogged, count(`t`.`tracked_by_user_id`) AS shipperOnboarded, COALESCE(SUM(IF(`e`.`status` = 'active', 1, 0)),0) AS activeShipper, COALESCE(SUM(IF(`e`.`status` = 'inactive', 1, 0)),0) AS inactiveShipper FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`t`.`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
+            } else {
+                var TrackingAnalysis =await sequelize.query("SELECT DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS date, COUNT(`t`.`id`) AS totalTrakingPosted, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS trackingCompleted, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS trackingInitiated, count(`t`.`comment`) AS complaintsLogged, count(`t`.`tracked_by_user_id`) AS shipperOnboarded, COALESCE(SUM(IF(`e`.`status` = 'active', 1, 0)),0) AS activeShipper, COALESCE(SUM(IF(`e`.`status` = 'inactive', 1, 0)),0) AS inactiveShipper FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY `t`.`start_date`",{ type: Sequelize.QueryTypes.SELECT });
+            }
+        }
+        if(TrackingAnalysis.length > 0){
+            res.status(200).send({ success: true, TrackingAnalysis: TrackingAnalysis}); //Return json with data or empty
+        }else{
+            res.status(200).json({ success: "false",data: "No data found!"}); // Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",data: "All fileds are required!"}); // Return json with error massage
+    }
 }
 /************************* Tracking Analysis ends *******************************/
 
@@ -102,13 +122,13 @@ exports.getFailedAnalysis = async function(req, res, next) {
         if(role=='admin'){ // Admin get all data
             if(type=='month'){ // Fetch Data Month Wise
                 var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, {fn MONTHNAME(`t`.`start_date`)} AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active'  AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
-            } else {  // Fetch Data Date Wise
+            } else { // Fetch Data Date Wise
                 var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active'  AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY DATE(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
             }
         } else { // Shipper get particular thair data
             if(type=='month'){ // Fetch Data Month Wise
                 var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, {fn MONTHNAME(`t`.`start_date`)} AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active' AND `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY MONTH(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });
-            } else {  // Fetch Data Date Wise
+            } else { // Fetch Data Date Wise
                 var Failed =await sequelize.query("SELECT COUNT(`t`.`id`) AS totalFailed, DATE_FORMAT(`t`.`start_date`,'%d-%m-%Y') AS month, COUNT(`t`.`start_date`) AS count FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`status`='active' AND `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+" GROUP BY DATE(`start_date`)",{ type: Sequelize.QueryTypes.SELECT });              
             }
         }
