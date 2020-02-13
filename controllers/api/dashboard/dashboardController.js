@@ -177,28 +177,23 @@ exports.getOrganizationSearch = async function(req, res, next) {
     }    
     if(OrganizationSearch.length > 0){ //query result length check
         OrganizationSearch.forEach(async function(k,p){
-            var i=0;
-            OrganizationSearch[i]['ListOfBranch'] = []; //create ListOfBranch array
-            var ListOfBranch = await sequelize.query("SELECT name AS branchName, address AS branchAddress, contact_name AS branchContactName, contact_number AS branchContactNumber, latitude, longitude FROM `branchs` WHERE `enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
-            if(ListOfBranch.length > 1){
-                var j = 0;
+            OrganizationSearch[p]['ListOfBranch'] = []; //create ListOfBranch array
+            var ListOfBranch = await sequelize.query("SELECT * FROM `branchs` WHERE `enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+            if(ListOfBranch.length > 0){
                 ListOfBranch.forEach(function(m,n){
-                    ListOfBranch[n]['branchLocation']={}; //static data push in array
-                    ListOfBranch[n]['branchLocation']['lan']=m.latitude; //static data push in array
-                    ListOfBranch[n]['branchLocation']['lat']=m.longitude; //static data push in array
-                    delete ListOfBranch[n].latitude;delete ListOfBranch[n].longitude;
-                    console.log(ListOfBranch[n]);
-                    //OrganizationSearch[i]['ListOfBranch']=Object.assign({}, ListOfBranch[j]);
-                    //OrganizationSearch[i]['ListOfBranch'].push({"ListOfBranch":"vfd"});
-                    //OrganizationSearch[p]['ListOfBranch'][n]=newBranch;  //assign data into ListOfBranch array
+                    var newBranch = {};
+                    newBranch["branchName"] = m.name;//static data push in array
+                    newBranch['branchAddress'] = m.address;//static data push in array
+                    newBranch['branchContactName'] = m.contact_name;//static data push in array
+                    newBranch['branchContactNumber'] = m.contact_number;//static data push in array
+                    newBranch['branchLocation']={}; //static data push in array
+                    newBranch['branchLocation']['lat']=m.latitude; //static data push in array
+                    newBranch['branchLocation']['lan']=m.longitude; //static data push in array
+                    OrganizationSearch[p]['ListOfBranch'][n]=newBranch;  //assign data into ListOfBranch array
                 });
-                OrganizationSearch[i]['ListOfBranch']=ListOfBranch;
-                console.log(OrganizationSearch);
-                j++;
             }
-            i++;
+            res.status(200).send({ success: true, data: OrganizationSearch}); //Return json with data or empty
         });
-        res.status(200).send({ success: true, data: OrganizationSearch}); //Return json with data or empty
     }else{
         res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
     }
@@ -211,13 +206,13 @@ exports.getTrackingSearch = async function(req, res, next) {
     var TrackingSearch=[];
     var Tracking_Search='';
     if(trackingId!=''){
-        Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `t`.`longitude`, `t`.`latitude`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`id`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
+        Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber, `b`.`id` AS branchId, `b`.`address` AS branchAddress,`b`.`contact_number` AS branchContact, `l`.`pickup_location_latitude`, `l`.`pickup_location_longitude`, `l`.`drop_location_latitude`, `l`.`drop_location_longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id`  LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`id`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(Tracking_Search.length <= 0){
-            Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `t`.`longitude`, `t`.`latitude`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`vehicle_number`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
+            Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber, `b`.`id` AS branchId, `b`.`address` AS branchAddress,`b`.`contact_number` AS branchContact, `l`.`pickup_location_latitude`, `l`.`pickup_location_longitude`, `l`.`drop_location_latitude`, `l`.`drop_location_longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id`  LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`vehicle_number`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
             if(Tracking_Search.length <= 0){
-                Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `t`.`longitude`, `t`.`latitude`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `e`.`id`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
+                Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber, `b`.`id` AS branchId, `b`.`address` AS branchAddress,`b`.`contact_number` AS branchContact, `l`.`pickup_location_latitude`, `l`.`pickup_location_longitude`, `l`.`drop_location_latitude`, `l`.`drop_location_longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id`  LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `e`.`id`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
                 if(Tracking_Search.length <= 0){
-                    Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `t`.`longitude`, `t`.`latitude`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`driver_mobile_number`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
+                    Tracking_Search = await sequelize.query("SELECT `t`.`tracking_id`, `e`.`id` AS OrganizationId, `e`.`primary_contact_no` AS OrganizationNumber, `b`.`id` AS branchId, `b`.`address` AS branchAddress,`b`.`contact_number` AS branchContact, `l`.`pickup_location_latitude`, `l`.`pickup_location_longitude`, `l`.`drop_location_latitude`, `l`.`drop_location_longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id`  LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`driver_mobile_number`='"+trackingId+"'",{ type: Sequelize.QueryTypes.SELECT });
                 }
             }
         }
@@ -225,22 +220,16 @@ exports.getTrackingSearch = async function(req, res, next) {
             Tracking_Search.forEach(function(k,p){
                 var FromArray ={};
                 var ToArray ={};
-                var Search ={};
-                FromArray['lan']=k.longitude;
-                FromArray['lat']=k.latitude;
-                ToArray['lan']=k.longitude;
-                ToArray['lat']=k.latitude;
-                Search['trackingId'] = k.tracking_id;
-                Search['From']=FromArray;
-                Search['To']=ToArray;
-                Search['OrganizationId']=k.OrganizationId;
-                Search['OrganizationNumber']=k.OrganizationNumber;
-                Search['branchId']='';
-                Search['branchAddress']='';
-                Search['branchContact']='';
-                TrackingSearch[p] = Search;
+                FromArray['lat']=k.pickup_location_latitude;
+                FromArray['lan']=k.pickup_location_longitude;
+                ToArray['lat']=k.drop_location_latitude;
+                ToArray['lan']=k.drop_location_longitude;
+                delete Tracking_Search[p].pickup_location_latitude;delete Tracking_Search[p].pickup_location_longitude;delete Tracking_Search[p].drop_location_latitude;delete Tracking_Search[p].drop_location_longitude;
+                Tracking_Search[p]['From']=FromArray;
+                Tracking_Search[p]['To']=ToArray;
+
             });
-            res.status(200).json({ success: "false",ListOfOrganization: TrackingSearch});// Return json with error massage
+            res.status(200).json({ success: "false",ListOfOrganization: Tracking_Search});// Return json with error massage
         } else {
             res.status(200).json({ success: "false",ListOfOrganization: "No data found!"});// Return json with error massage
         }
