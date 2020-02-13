@@ -34,5 +34,14 @@ router.post('/dashboard/active-inactive-Shipper',dashboardController.getActiveIn
 /*Report Controller End*/
 
 /*Tracking Controller Start*/
+router.post('/tracking/search-tracking',trackingController.getSearchTracking);
+router.post('/tracking/complete-tracking-list',trackingController.getCompleteTrackingList);
+router.post('/tracking/change-tracking-status',trackingController.getChangeTrackingStatus);
+router.post('/tracking/enable-disable-tracking',trackingController.getEnableDisableTracking);
+router.post('/tracking/tracking-details',trackingController.getTrackingDetails);
+router.post('/tracking/search-organization',trackingController.getSearchOrganization);
+router.post('/tracking/tracking-list',trackingController.getTracking);
+router.post('/tracking/create-tracking',trackingController.createTracking);
+router.post('/tracking/edit-tracking',trackingController.editTracking);
 /*Tracking Controller End*/
 module.exports = router;

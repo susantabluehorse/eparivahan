@@ -176,17 +176,29 @@ exports.getOrganizationSearch = async function(req, res, next) {
         res.status(200).json({ success: "false",data: "Please Provied organization id or name"});// Return json with error massage
     }    
     if(OrganizationSearch.length > 0){ //query result length check
-        var newBranch = {};
-        newBranch["branchName"] = "ss";//static data push in array
-        newBranch['branchAddress'] = 'ss';//static data push in array
-        newBranch['branchContactName'] = 'ss';//static data push in array
-        newBranch['branchContactNumber'] = 'ss';//static data push in array
-        newBranch['branchLocation']={}; //static data push in array
-        newBranch['branchLocation']['lan']='ss'; //static data push in array
-        newBranch['branchLocation']['lat']='ss'; //static data push in array
-        OrganizationSearch[0]['ListOfBranch'] = []; //create ListOfBranch array
-        OrganizationSearch[0]['ListOfBranch'][0]=newBranch;  //assign data into ListOfBranch array
-        res.status(200).send({ success: true, data: OrganizationSearch[0]}); //Return json with data or empty
+        OrganizationSearch.forEach(async function(k,p){
+            var i=0;
+            OrganizationSearch[i]['ListOfBranch'] = []; //create ListOfBranch array
+            var ListOfBranch = await sequelize.query("SELECT name AS branchName, address AS branchAddress, contact_name AS branchContactName, contact_number AS branchContactNumber, latitude, longitude FROM `branchs` WHERE `enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+            if(ListOfBranch.length > 1){
+                var j = 0;
+                ListOfBranch.forEach(function(m,n){
+                    ListOfBranch[n]['branchLocation']={}; //static data push in array
+                    ListOfBranch[n]['branchLocation']['lan']=m.latitude; //static data push in array
+                    ListOfBranch[n]['branchLocation']['lat']=m.longitude; //static data push in array
+                    delete ListOfBranch[n].latitude;delete ListOfBranch[n].longitude;
+                    console.log(ListOfBranch[n]);
+                    //OrganizationSearch[i]['ListOfBranch']=Object.assign({}, ListOfBranch[j]);
+                    //OrganizationSearch[i]['ListOfBranch'].push({"ListOfBranch":"vfd"});
+                    //OrganizationSearch[p]['ListOfBranch'][n]=newBranch;  //assign data into ListOfBranch array
+                });
+                OrganizationSearch[i]['ListOfBranch']=ListOfBranch;
+                console.log(OrganizationSearch);
+                j++;
+            }
+            i++;
+        });
+        res.status(200).send({ success: true, data: OrganizationSearch}); //Return json with data or empty
     }else{
         res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
     }

@@ -23,23 +23,31 @@ var sequelize = new Sequelize(
 
 /************************* Search Tracking start *******************************/
 exports.getSearchTracking = async function(req, res, next) {
-    //console.log(req.body);
-    var userId = req.body.userId;
-    var role = req.body.role;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    var TrackingCount='';// Create return Object
-    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
-        if(role=='admin'){ // Admin get all data
-            var TrackingCount =await sequelize.query("SELECT COALESCE(SUM(IF(`t`.`status` = 'active', 1, 0)),0) AS active, COALESCE(SUM(IF(`t`.`status` = 'tracked', 1, 0)),0) AS tracked, COALESCE(SUM(IF(`t`.`status` = 'not-tracked', 1, 0)),0) AS 'not-tracked', COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completed FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'",{ type: Sequelize.QueryTypes.SELECT });
-        } else { // Shipper get particular thair data
-            var TrackingCount =await sequelize.query("SELECT COALESCE(SUM(IF(`t`.`status` = 'active', 1, 0)),0) AS active, COALESCE(SUM(IF(`t`.`status` = 'tracked', 1, 0)),0) AS tracked, COALESCE(SUM(IF(`t`.`status` = 'not-tracked', 1, 0)),0) AS 'not-tracked', COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completed FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'",{ type: Sequelize.QueryTypes.SELECT });
-        }
-        if(TrackingCount.length > 0) { //query result length check
-            res.status(200).json({data:TrackingCount[0]}); //Return json with data or empty
-        } else {
-            res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
-        }
+    var trackingId = req.body.trackingId;
+    var organizationId = req.body.organizationId;    
+    var queryQ = '';
+    if(trackingId !='' && organizationId !=''){
+        var queryQ = "WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"";
+    } else if(trackingId !='') {
+        var queryQ = "WHERE `t`.`tracking_id`="+trackingId+"";
+    } else if(trackingId !='') {
+        var queryQ = "WHERE `e`.`id`="+organizationId+"";
+    } 
+    var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `e`.`organisation_name` AS OrganizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `e`.`email` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile, `t`.`from_location` AS `Form`, `t`.`to_location` AS `To`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `v`.`driver_name` AS driverName, `v`.`driver_mobile` AS driverMobileNumber, `t`.`tracked_mobile_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers` AS trackkedMobileNumbers, `t`.`vehicle_number` AS vehicleNumber, `t`.`status` AS status, `t`.`active_status` AS active, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` LEFT JOIN `vehicle_details` AS v ON `v`.`enterprise_id`=`e`.`id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
+    if(SearchTracking.length > 0) { //query result length check
+        SearchTracking.forEach(function(k,p){
+            SearchTracking[p]['BranchId'] = '';
+            SearchTracking[p]['BranckName'] = '';
+            SearchTracking[p]['BranchContactNumber'] = '';
+            SearchTracking[p]['BranchContactName'] = '';
+            SearchTracking[p]['trackingDetails'] = {};
+            SearchTracking[p]['trackingDetails']['latitude'] = k.latitude;
+            SearchTracking[p]['trackingDetails']['longitude'] = k.longitude;
+            SearchTracking[p]['trackingDetails']['timeStamp'] = k.time_stamp;
+            delete SearchTracking[p].latitude;delete SearchTracking[p].longitude;delete SearchTracking[p].time_stamp;
+        });            
+        res.status(200).json({data:SearchTracking}); //Return json with data or empty
+        
     }else{
         res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
     }
@@ -48,22 +56,25 @@ exports.getSearchTracking = async function(req, res, next) {
 
 /************************* Complete Tracking List start *******************************/
 exports.getCompleteTrackingList = async function(req, res, next) {
-    //console.log(req.body);
-    var userId = req.body.userId;
-    var role = req.body.role;
-    var shipperId = req.body.shipperId;
+    var organizationId = req.body.organizationId;
     var fromDate = req.body.fromDate;
     var toDate = req.body.toDate;
-    var TrackingHistory=''; // Create return Object
-    var shipperIdQ = shipperId!='' ? " AND `e`.`id`="+shipperId : "";
-    if(userId !='' && role !='' && fromDate !='' && toDate !=''){
-        if(role=='admin'){ // Admin get all data
-            var TrackingHistory =await sequelize.query("SELECT COUNT(`t`.`id`) AS TotalRows, COUNT(DISTINCT `e`.`id`) AS totalShipper, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS totalcompleted, COUNT(DISTINCT `t`.`tracked_mobile_number`) AS totalNumberTracked, COUNT(DISTINCT `t`.`vehicle_number`) AS totalVehicleTracked FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+"",{ type: Sequelize.QueryTypes.SELECT });
-        } else { // Shipper get particular thair data
-            var TrackingHistory =await sequelize.query("SELECT COUNT(`t`.`id`) AS TotalRows, COUNT(DISTINCT `e`.`id`) AS totalShipper, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS totalcompleted, COUNT(DISTINCT `t`.`tracked_mobile_number`) AS totalNumberTracked, COUNT(DISTINCT `t`.`vehicle_number`) AS totalVehicleTracked FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` WHERE `t`.`tracked_by_user_id`="+userId+" AND DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+shipperIdQ+"",{ type: Sequelize.QueryTypes.SELECT });
-        }
-        if(TrackingHistory.length > 0) { //query result length check
-            res.status(200).json({data:TrackingHistory[0]}); //Return json with data or empty
+    var organizationIdQ = organizationId!='' ? " AND `e`.`id`="+organizationId : "";
+    if(fromDate !='' && toDate !=''){
+        var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `e`.`organisation_name` AS OrganizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `e`.`email` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile, `t`.`from_location` AS `Form`, `t`.`to_location` AS `To`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `v`.`driver_name` AS driverName, `v`.`driver_mobile` AS driverMobileNumber, `t`.`tracked_mobile_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers` AS trackkedMobileNumbers, `t`.`vehicle_number` AS vehicleNumber, `t`.`status` AS status, `t`.`active_status` AS active, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` LEFT JOIN `vehicle_details` AS v ON `v`.`enterprise_id`=`e`.`id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+organizationIdQ+"",{ type: Sequelize.QueryTypes.SELECT });
+        if(SearchTracking.length > 0) { //query result length check
+            SearchTracking.forEach(function(k,p){
+                SearchTracking[p]['BranchId'] = '';
+                SearchTracking[p]['BranckName'] = '';
+                SearchTracking[p]['BranchContactNumber'] = '';
+                SearchTracking[p]['BranchContactName'] = '';
+                SearchTracking[p]['trackingDetails'] = {};
+                SearchTracking[p]['trackingDetails']['latitude'] = k.latitude;
+                SearchTracking[p]['trackingDetails']['longitude'] = k.longitude;
+                SearchTracking[p]['trackingDetails']['timeStamp'] = k.time_stamp;
+                delete SearchTracking[p].latitude;delete SearchTracking[p].longitude;delete SearchTracking[p].time_stamp;
+            });            
+            res.status(200).json({data:SearchTracking}); //Return json with data or empty
         } else {
             res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
         }
