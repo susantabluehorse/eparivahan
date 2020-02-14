@@ -28,9 +28,14 @@ router.post('/dashboard/active-inactive-Shipper',dashboardController.getActiveIn
 /*Dashboard Controller End*/
 
 /*Organization Controller Start*/
+router.post('/organization/set-organization-status',organizationController.setOrganizationStatus);
+router.post('/organization/load-by-organization-by-id',organizationController.getLoadByOrganizationById);
+router.post('/organization/complete-organization-list',organizationController.getCompleteOrganizationList);
+router.post('/organization/search-organization-in-details',organizationController.searchOrganizationInDetails);
 /*Organization Controller End*/
 
 /*Report Controller Start*/
+router.post('/report/generate-report',reportController.generateReport);
 /*Report Controller End*/
 
 /*Tracking Controller Start*/
@@ -39,9 +44,15 @@ router.post('/tracking/complete-tracking-list',trackingController.getCompleteTra
 router.post('/tracking/change-tracking-status',trackingController.getChangeTrackingStatus);
 router.post('/tracking/enable-disable-tracking',trackingController.getEnableDisableTracking);
 router.post('/tracking/tracking-details',trackingController.getTrackingDetails);
+router.post('/tracking/view/tracking-detail',trackingController.particularTrackingDetails);
 router.post('/tracking/search-organization',trackingController.getSearchOrganization);
 router.post('/tracking/tracking-list',trackingController.getTracking);
 router.post('/tracking/create-tracking',trackingController.createTracking);
 router.post('/tracking/edit-tracking',trackingController.editTracking);
+router.post('/tracking/update-tracking-status',trackingController.updateTrackingStatus);
+router.post('/tracking/update-tracking-details',trackingController.updateTrackingDetails);
+router.post('/tracking/update-tracking-active',trackingController.updateTrackingActive);
+router.post('/tracking/update-active-mobile-number',trackingController.updateActiveMobileNumber);
+router.post('/tracking/add-contact-mobile-number',trackingController.addContactandMobileNumber);
 /*Tracking Controller End*/
 module.exports = router;

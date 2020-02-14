@@ -21,138 +21,143 @@ var sequelize = new Sequelize(
     }
 );
 
-/*************************candidate sign-up start *******************************/
-
-exports.candidate_registration = async function(req, res, next) {
-
-    console.log(req.body.data);
-    
-    var password = req.body.data.password;
-    var hash = bcrypt.hashSync(password);
-    var first_name = req.body.data.first_name;
-    var last_name = req.body.data.last_name;
-    var email = req.body.data.email;
-    var mob_country_code = req.body.data.mob_country_code;
-    var mobile = req.body.data.mobile;
-    var terms = req.body.data.terms;
-    var category_id = req.body.data.category_id;
-
-    
-    if(first_name !='' && last_name !='' && email !='' && mobile !='' && password !='' && mob_country_code !='' && category_id !=''){
-
-        var check_email =await sequelize.query("SELECT * FROM candidates  WHERE username='"+email+"' limit 1",{ type: Sequelize.QueryTypes.SELECT });
-        var check_mobile =await sequelize.query("SELECT * FROM candidates  WHERE mobile='"+mobile+"' limit 1",{ type: Sequelize.QueryTypes.SELECT });
-
-        var email_msg='';
-        var mobile_msg='';
-        if(check_email.length>0){
-            email_msg= "Email ID already exists!";
-        }if (check_mobile.length>0){
-            mobile_msg= "Mobile number already exists!";
-        }
-
-        if(check_email.length==0 && check_mobile.length==0){
-            console.log('111111111111111111111111111');
-
-            models.candidates.create({
-                
-                first_name : first_name,
-                last_name : last_name,
-                email : email,
-                username : email,
-                mob_country_code : mob_country_code,
-                mobile : mobile,
-                password : hash,
-                type : "candidate", 
-                terms : terms      
-                
-            }).then(async function(candidate) { 
-
-                if(candidate){
-                    console.log('222222222222222222222222');
-                    models.candidate_looking_for.create({
-                        candidate_id: candidate.candidate_id,
-                        category : category_id,
-                    }).then(async function(candidate_looking_for){
-            
-                        var dir = './public/contents/candidates/'+candidate.candidate_id; 
-                        console.log(dir);
-                        if (!fs.existsSync(dir)){
-                            fs.mkdirSync(dir);                  
-                        }
-
-                        var candidate_full_data =await sequelize.query("SELECT candidates.*, candidate_looking_for.category, categories.title as category_title from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id LEFT JOIN categories ON candidate_looking_for.category = categories.category_id where candidates.candidate_id ="+candidate.candidate_id,{ type: Sequelize.QueryTypes.SELECT });
-
-                        var token = jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
-                        res.status(200).send({ success: "true", message: "User successfully registered. You can login now.", details:candidate_full_data[0], token:token  });         
-                    });
-                }else{
-                    res.status(200).json({ success: "false",message: "Registration failed!"});
-                }
-
-                // var dir = './public/contents/candidates/'+candidate.candidate_id; 
-                // console.log(dir);
-                // if (!fs.existsSync(dir)){
-                //     fs.mkdirSync(dir);                  
-                // }
-                // var token = jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
-
-                
-                // res.status(200).send({ success: "true", message: "User successfully registered. You can login now.",token:token, details:candidate  });         
-            })
-        }else{
-            res.status(200).json({ success: "false", message: "Email or mobile already already exists!" });
-        }
-    }else{
-        res.status(200).json({ success: "false",message: "All fileds are required!"});
-    }  
-}
-
-/*************************candidate sign-up ends *******************************/
-
-/*************************candidate sign-in start *******************************/
-
-exports.candidate_signin = async function(req, res, next) {
-
-    var username = req.body.data.username;
-    var password = req.body.data.password;
-   //var hash = bcrypt.hashSync(password);
-
-    //var candidate =await sequelize.query("SELECT candidates.*, candidate_looking_for.category from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id where candidates.username ='"+username+"'",{ type: Sequelize.QueryTypes.SELECT });
-    var candidate =await sequelize.query("SELECT candidates.*, candidate_looking_for.category, categories.title as category_title from candidates LEFT JOIN candidate_looking_for ON candidates.candidate_id = candidate_looking_for.candidate_id LEFT JOIN categories ON candidate_looking_for.category = categories.category_id where candidates.username ='"+username+"'",{ type: Sequelize.QueryTypes.SELECT });
-
-    //models.candidates.findOne({ where: {username :username} }).then(function(candidate) {
-        if(candidate.length > 0){
-            if(!bcrypt.compareSync(password, candidate[0].password)){
-                res.status(200).send({ success: "false", message: "Invalid username and password!" });
-            }else{
-                var token =    jwt.sign({candidate}, SECRET, { expiresIn: 18000 });
-                res.status(200).send({ success: "true", message:"successfully login", candidatedetail:candidate[0], token: token }); 
+/************************* Set Organization Status Start *******************************/
+exports.setOrganizationStatus = async function(req, res, next) {
+    var organizationId = req.body.organizationId;
+    var userId = req.body.userId;
+    var status = req.body.status;
+    if(status !='' && organizationId !='' && userId !=''){
+        var OrganizationStatus =await sequelize.query("SELECT `e`.`id` AS Id FROM `enterprises` AS e INNER JOIN `users` AS u ON `u`.`enterprise_id`=`e`.`id` WHERE `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+        if(OrganizationStatus.length > 0){
+            var setOrganizationStatus =await sequelize.query("UPDATE enterprises SET `status`='"+status+"' WHERE `id`="+OrganizationStatus[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
+            if(setOrganizationStatus.slice(-1)[0] > 0) {
+                res.status(200).json({success:true}); //Return json with data or empty
+            } else {
+                res.status(200).json({success:false});// Return json with error massage
             }
-            
-        }else{				
-            res.status(200).send({ success: "false", message: "Invalid username and password!" });
-        }  
-
+        } else {
+            res.status(200).json({success:false});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }
 }
+/************************* Set Organization Status Ends *******************************/
 
-/*************************candidate sign-in ends *******************************/
-
-/************************* candidate category list api start *******************************/
-
-exports.candidate_category_list = async function(req, res, next) {
-
-    var category_list = await sequelize.query("SELECT categories.category_id, categories.title, (SELECT COUNT(*) FROM candidate_looking_for WHERE categories.category_id=candidate_looking_for.category) as candidate_count_by_category FROM categories where categories.status='active' order by categories.title ASC",{ type: Sequelize.QueryTypes.SELECT });
-    var location_list = await sequelize.query("SELECT COUNT(*) as candidate_count_by_location, location as candidate_location FROM candidate_looking_for GROUP BY location",{ type: Sequelize.QueryTypes.SELECT });
-    
-    //if(category_list){
-        res.status(200).send({ success: true, category_list: category_list, location_list: location_list});
-    // }else{
-    //     res.status(200).send({ message: "No category found" });
-    // }
-    
+/************************* Get Load By Organization By Id Start *******************************/
+exports.getLoadByOrganizationById = async function(req, res, next) {
+    var organization_Id = req.body.organizationId;
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    if(organization_Id !='', fromDate !='', toDate !=''){
+        var organizationId = (organization_Id > 0) ? " AND `e`.`id`="+organization_Id : '';
+        var OrganizationById = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+        if(OrganizationById.length > 0){ //query result length check
+            OrganizationById.forEach(async function(k,p){
+                OrganizationById[p]['loadDetailsId'] = []; //create ListOfBranch array
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(m,n){
+                        OrganizationById[p]['loadDetailsId'][n]=m;  //assign data into ListOfBranch array
+                    });
+                }
+                res.status(200).send({ success: true, data: OrganizationById}); //Return json with data or empty
+            });
+        }else{
+            res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",ListOfOrganization: "All fileds are required!"});// Return json with error massage
+    }
 }
+/************************* Get Load By Organization By Id Ends *******************************/
 
-/************************* candidate category list api ends *******************************/
+/************************* Get Complete Organization List Start *******************************/
+exports.getCompleteOrganizationList = async function(req, res, next) {
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    var fromCount = req.body.fromCount;
+    var toCount = req.body.toCount;
+    var sort_By = req.body.sortBy;
+    if(fromCount !='', toCount !='', fromDate !='', toDate !=''){
+        var sortBy = (sort_By == 'name') ? " ORDER BY organisation_name ASC" : " ORDER BY status ASC";
+        var limit = " LIMIT "+toCount+" OFFSET "+toCount+"";
+        var CompleteOrganizationList = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `ec`.`contact_person` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+sortBy+limit+"",{ type: Sequelize.QueryTypes.SELECT });
+        if(CompleteOrganizationList.length > 0){ //query result length check
+            CompleteOrganizationList.forEach(async function(k,p){
+                CompleteOrganizationList[p]['ListOfBranch'] = []; //create ListOfBranch array
+                CompleteOrganizationList[p]['ListOfLoad'] = []; //create ListOfBranch array
+                CompleteOrganizationList[p]['ListOfTraking'] = []; //create ListOfBranch array
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(m,n){
+                        CompleteOrganizationList[p]['ListOfBranch'][n]=m;  //assign data into ListOfBranch array
+                    });
+                }
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(r,s){
+                        CompleteOrganizationList[p]['ListOfLoad'][s]=r;  //assign data into ListOfBranch array
+                    });
+                }
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(x,y){
+                        CompleteOrganizationList[p]['loadDetailsId'][y]=x;  //assign data into ListOfBranch array
+                    });
+                }
+                res.status(200).send({ success: true, data: CompleteOrganizationList}); //Return json with data or empty
+            });
+        }else{
+            res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",ListOfOrganization: "All fileds are required!"});// Return json with error massage
+    }
+}
+/************************* Get Complete Organization List Ends *******************************/
 
-
+/************************* Get Complete Organization List Start *******************************/
+exports.searchOrganizationInDetails = async function(req, res, next) {
+    var fromDate = req.body.fromDate;
+    var toDate = req.body.toDate;
+    var fromCount = req.body.fromCount;
+    var toCount = req.body.toCount;
+    var sort_By = req.body.sortBy;
+    if(fromCount !='', toCount !='', fromDate !='', toDate !=''){
+        var sortBy = (sort_By == 'name') ? " ORDER BY organisation_name ASC" : " ORDER BY status ASC";
+        var limit = " LIMIT "+toCount+" OFFSET "+toCount+"";
+        var CompleteOrganizationList = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `ec`.`contact_person` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+sortBy+limit+"",{ type: Sequelize.QueryTypes.SELECT });
+        if(CompleteOrganizationList.length > 0){ //query result length check
+            CompleteOrganizationList.forEach(async function(k,p){
+                CompleteOrganizationList[p]['ListOfBranch'] = []; //create ListOfBranch array
+                CompleteOrganizationList[p]['ListOfLoad'] = []; //create ListOfBranch array
+                CompleteOrganizationList[p]['ListOfTraking'] = []; //create ListOfBranch array
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(m,n){
+                        CompleteOrganizationList[p]['ListOfBranch'][n]=m;  //assign data into ListOfBranch array
+                    });
+                }
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(r,s){
+                        CompleteOrganizationList[p]['ListOfLoad'][s]=r;  //assign data into ListOfBranch array
+                    });
+                }
+                var LoadBy = await sequelize.query("SELECT `l`.`id` AS loadId, `l`.`pickup_location_address` AS `from`, `l`.`drop_location_address` AS `to`, `l`.`load_date` AS `date`, if(count(`t`.`id`) > 0 , 'true', 'false') AS alreadyTracked, `l`.`status` FROM `loads` AS l LEFT JOIN `tracking_mappers` AS tm ON `tm`.`load_id`=`l`.`id` LEFT JOIN `tracking_details` AS t ON `t`.`tracking_id`=`tm`.`tracking_id` WHERE `l`.`consignee_enterprise_id`="+k.organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(LoadBy.length > 0){
+                    LoadBy.forEach(function(x,y){
+                        CompleteOrganizationList[p]['loadDetailsId'][y]=x;  //assign data into ListOfBranch array
+                    });
+                }
+                res.status(200).send({ success: true, data: CompleteOrganizationList}); //Return json with data or empty
+            });
+        }else{
+            res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",ListOfOrganization: "All fileds are required!"});// Return json with error massage
+    }
+}
+/************************* Get Complete Organization List Ends *******************************/
