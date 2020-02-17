@@ -5,7 +5,6 @@ var fs = require('file-system');
 var bcrypt = require('bcrypt-nodejs');
 var config = require('../../../config/config.json');
 var Sequelize = require("sequelize");
-var json2csv = require('json2csv');
 var sequelize = new Sequelize(
     config.development.database, 
     config.development.username,
@@ -21,6 +20,7 @@ var sequelize = new Sequelize(
         //storage: 'path/to/database.sqlite'
     }
 );
+
 /************************* candidate category list api start *******************************/
 exports.generateReport = async function(req, res, next) {
     var organization_Id = req.body.organizationId;
@@ -29,15 +29,20 @@ exports.generateReport = async function(req, res, next) {
     var type = req.body.type;
     if(fromDate !='' && type !='' && toDate !=''){
         var branchs = await sequelize.query("SELECT * FROM `branchs`",{ type: Sequelize.QueryTypes.SELECT });
-        var fields = ['id', 'enterprise_id', 'name', 'contact_name', 'contact_email', 'contact_number', 'address', 'latitude', 'longitude', 'status', 'created_at', 'updated_at'];
-        var fieldNames = ['ID', 'EnterpriseId', 'Name', 'ContactName', 'ContactEmail', 'ContactNumber', 'Address', 'Latitude', 'Longitude', 'Status', 'CreatedAt', 'UpdatedAt'];
-        var data = json2csv({ data: branchs, fields: fields, fieldNames: fieldNames });
-        res.attachment('branchs.csv');
-        res.status(200).send('');
+        var data='';        
+        data +='ID\tEnterpriseId\tName\tContactName\tContactEmail\tContactNumber\tAddress\tLatitude\tLongitude\tStatus\tCreatedAt\tUpdatedAt\n';        
+        for (var i = 0; i < branchs.length; i++) {
+            let status = (branchs[i].status==1) ? 'Active' : 'Inactive';
+            data += branchs[i].id+'\t'+branchs[i].enterprise_id+'\t'+branchs[i].name+'\t'+branchs[i].contact_name+'\t'+branchs[i].contact_email+'\t'+branchs[i].contact_number+'\t'+branchs[i].address+'\t'+branchs[i].latitude+'\t'+branchs[i].longitude+'\t'+status+'\t'+branchs[i].created_at+'\t'+branchs[i].updated_at+'\n';
+        }
+        var dateTime = new Date();
+        var nameDateTime = dateTime.getDate()+'-'+dateTime.getMonth()+'-'+dateTime.getFullYear()+'_'+dateTime.getTime();
+        fs.writeFile('./public/reports/'+'branchsList_'+nameDateTime+'.xls', data, (err) => {
+            if (err) throw err;            
+            res.status(200).json({ success: "true",data: 'reports/branchsList_'+nameDateTime+'.xls'});// Return json with error massage
+        });
     } else {
         res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
     }    
 }
 /************************* candidate category list api ends *******************************/
-
-

@@ -1,18 +1,18 @@
-var express 			= require('express');
-var path 				= require('path');
-var favicon 			= require('static-favicon');
-var cookieParser 		= require('cookie-parser');
-var bodyParser 			= require('body-parser');
-var flash             	= require('connect-flash');
-var sess              	= require('express-session');
-var bcrypt 				= require('bcrypt-nodejs');
-var passport          	= require('passport');
-var LocalStrategy     	= require('passport-local').Strategy;
-var cors 				= require('cors');
-var expressValidator    = require('express-validator');
-var models 			    = require('./models'); 
-var store 				= require('session-memory-store')(sess);
-var flash               = require('connect-flash');
+var express 			   = require('express');
+var path 				     = require('path');
+var favicon 			   = require('static-favicon');
+var cookieParser 		 = require('cookie-parser');
+var bodyParser 			 = require('body-parser');
+var flash            = require('connect-flash');
+var sess             = require('express-session');
+var bcrypt 				   = require('bcrypt-nodejs');
+var passport         = require('passport');
+var LocalStrategy    = require('passport-local').Strategy;
+var cors 				     = require('cors');
+var expressValidator = require('express-validator');
+var models 			     = require('./models'); 
+var store 				   = require('session-memory-store')(sess);
+var flash            = require('connect-flash');
 
 ///consol.log(config.host);
 ///passport
@@ -73,8 +73,8 @@ var server = app.listen(app.get('port'), function() {
 var domain = 'http://localhost:'+server.address().port;
 ///variable declare
 app.locals.adminbaseurl= domain +'/admin/';
-//  app.locals.baseurl= domain +'/';
-app.locals.baseurl= 'http://192.168.0.8:3302/';
+app.locals.baseurl= domain +'/';
+//app.locals.baseurl= 'http://192.168.0.8:3302/';
 app.locals.logouturl=domain +'/'; 
 
 // view engine setup

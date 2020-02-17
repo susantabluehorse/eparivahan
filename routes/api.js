@@ -32,6 +32,13 @@ router.post('/organization/set-organization-status',organizationController.setOr
 router.post('/organization/load-by-organization-by-id',organizationController.getLoadByOrganizationById);
 router.post('/organization/complete-organization-list',organizationController.getCompleteOrganizationList);
 router.post('/organization/search-organization-in-details',organizationController.searchOrganizationInDetails);
+router.post('/organization/add-user-organization',organizationController.addUserToOrganization);
+router.post('/organization/remove-user-organization',organizationController.removeUserFromOrganization);
+router.post('/organization/add-branch-organization',organizationController.addBranchToOrganization);
+router.post('/organization/remove-branch-organization',organizationController.removeBranchToOrganization);
+router.post('/organization/search-user',organizationController.searchUser);
+router.post('/organization/edit-organization-by-id',organizationController.editOrganizationById);
+router.post('/organization/add-organization-by-id',organizationController.createOrganizationById);
 /*Organization Controller End*/
 
 /*Report Controller Start*/

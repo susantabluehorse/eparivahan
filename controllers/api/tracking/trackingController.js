@@ -224,7 +224,7 @@ exports.updateTrackingStatus = async function(req, res, next) {
         var updateTrackingStatus =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` LEFT JOIN `vehicle_details` AS v ON `v`.`enterprise_id`=`e`.`id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
         if(updateTrackingStatus.length > 0){
             var TrackingStatus =await sequelize.query("UPDATE tracking_details SET `status`='"+status+"' WHERE `id`="+updateTrackingStatus[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
-            if(TrackingStatus > 0) {
+            if(TrackingStatus.slice(-1)[0] > 0) {
                 res.status(200).json({success:true}); //Return json with data or empty
             } else {
                 res.status(200).json({success:false});// Return json with error massage
@@ -250,7 +250,7 @@ exports.updateTrackingDetails = async function(req, res, next) {
         var updateTrackingDetails =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` LEFT JOIN `vehicle_details` AS v ON `v`.`enterprise_id`=`e`.`id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
         if(updateTrackingDetails.length > 0){
             var TrackingDetails =await sequelize.query("UPDATE tracking_details SET `time_stamp`='"+timeStamp+"', `latitude`='"+latitude+"', `longitude`='"+longitude+"' WHERE `id`="+updateTrackingDetails[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
-            if(TrackingDetails > 0) {
+            if(TrackingDetails.slice(-1)[0] > 0) {
                 res.status(200).json({success:true}); //Return json with data or empty
             } else {
                 res.status(200).json({success:false});// Return json with error massage
