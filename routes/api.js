@@ -7,6 +7,12 @@ var dashboardController = require('../controllers/api/dashboard/dashboardControl
 var organizationController = require('../controllers/api/organization/organizationController');
 var reportController = require('../controllers/api/report/reportController');
 var trackingController = require('../controllers/api/tracking/trackingController');
+var loginController = require('../controllers/api/login/loginController');
+
+/*Analysis Controller Start*/
+router.post('/login',loginController.getLogin);
+router.post('/login/verify-otp',loginController.getLoginVerifyOtp);
+/*Analysis Controller End*/
 
 /*Analysis Controller Start*/
 router.post('/analysis/search-tracking',analysisController.getSearchTracking);
