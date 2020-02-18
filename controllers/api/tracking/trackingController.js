@@ -189,8 +189,9 @@ exports.createTracking = async function(req, res, next) {
     var totalTrackCount = req.body.totalTrackCount;
     if(userId!='' && organizationId!='' && loadId!='' && branchId!='' && startDate!='' && vehicleNumber!='' && driverNumber!='' && driverName!='' && otherMobileNumber!='' && driverMobileOnTrack!='' && from!='' && to!='' && totalTrackCount!=''){
         var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`driver_mobile_number`, `tracked_mobile_mumbers`, `tracked_by_user_id`, `tracked_mobile_number`, `vehicle_number`,`tracking_count`,`start_date`,`from_location`,`to_location`) VALUES ('"+driverNumber+"','"+otherMobileNumber+"',"+userId+",'"+driverMobileOnTrack+"','"+vehicleNumber+"',"+totalTrackCount+",'"+startDate+"','"+from+"','"+to+"')",{ type: Sequelize.QueryTypes.INSERT });
-        console.log(createTracking);
-        var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+userId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
+        var TrId = createTracking.slice(0,1);
+        var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
+        var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
         if(createTracking.slice(-1)[0] > 0) {
             res.status(200).json({success:true}); //Return json with data or empty
         } else {
@@ -211,14 +212,16 @@ exports.editTracking = async function(req, res, next) {
     var vehicleNumber = req.body.vehicleNumber;
     var driverNumber = req.body.driverNumber;
     var driverName = req.body.driverName;
-    var otherMobileNumber = req.body.otherMobileNumber;
+    var otherMobileNumber = JSON.stringify(req.body.otherMobileNumber);
     var driverMobileOnTrack = req.body.driverMobileOnTrack;
-    var from = req.body.from;
-    var to = req.body.to;
+    var from = JSON.stringify(req.body.from);
+    var to = JSON.stringify(req.body.to);
     var totalTrackCount = req.body.totalTrackCount;
     var trackingId = req.body.trackingId;
-    if(trackingId1='' && userId!='' && organizationId!='' && branchId!='' && startDate!='' && vehicleNumber!='' && driverNumber!='' && driverName!='' && otherMobileNumber!='' && driverMobileOnTrack!='' && from!='' && to!='' && totalTrackCount!=''){
-        if(setOrganizationStatus.slice(-1)[0] > 0) {
+    if(trackingId='' && userId!='' && organizationId!='' && branchId!='' && startDate!='' && vehicleNumber!='' && driverNumber!='' && driverName!='' && otherMobileNumber!='' && driverMobileOnTrack!='' && from!='' && to!='' && totalTrackCount!=''){
+        var createTracking = await sequelize.query("UPDATE `tracking_details` SET `driver_mobile_number`='"+driverNumber+"', `tracking_id`='"+trackingId+"', `tracked_mobile_mumbers`='"+otherMobileNumber+"', `tracked_by_user_id`="+userId+", `tracked_mobile_number`='"+driverMobileOnTrack+"', `vehicle_number`='"+vehicleNumber+"', `tracking_count`="+totalTrackCount+", `start_date`='"+startDate+"', `from_location`='"+from+"', `to_location`='"+to+"' WHERE id="+trackingId+"",{ type: Sequelize.QueryTypes.UPDATE });
+        var createTrackingMapped = await sequelize.query("UPDATE `tracking_mappers``user_id`="+userId+", `load_id`="+loadId+", `tracking_id`="+trackingId+", `branch_id`="+branchId+" WHERE tracking_id="+trackingId+"",{ type: Sequelize.QueryTypes.UPDATE });
+        if(createTracking.slice(-1)[0] > 0) {
             res.status(200).json({success:true}); //Return json with data or empty
         } else {
             res.status(200).json({success:false});// Return json with error massage
