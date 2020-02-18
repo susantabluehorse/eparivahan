@@ -173,19 +173,59 @@ exports.getTracking = async function(req, res, next) {
 
 /************************* Create Tracking start *******************************/
 exports.createTracking = async function(req, res, next) {
+    console.log(req.body);
+    var userId = req.body.userId;
     var organizationId = req.body.organizationId;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    var branchId = req.body.branchId;
+    var loadId = req.body.loadId;
+    var startDate = req.body.startDate;
+    var vehicleNumber = req.body.vehicleNumber;
+    var driverNumber = req.body.driverNumber;
+    var driverName = req.body.driverName;
+    var otherMobileNumber = JSON.stringify(req.body.otherMobileNumber);
+    var driverMobileOnTrack = req.body.driverMobileOnTrack;
+    var from = JSON.stringify(req.body.from);
+    var to = JSON.stringify(req.body.to);
+    var totalTrackCount = req.body.totalTrackCount;
+    if(userId!='' && organizationId!='' && loadId!='' && branchId!='' && startDate!='' && vehicleNumber!='' && driverNumber!='' && driverName!='' && otherMobileNumber!='' && driverMobileOnTrack!='' && from!='' && to!='' && totalTrackCount!=''){
+        var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`driver_mobile_number`, `tracked_mobile_mumbers`, `tracked_by_user_id`, `tracked_mobile_number`, `vehicle_number`,`tracking_count`,`start_date`,`from_location`,`to_location`) VALUES ('"+driverNumber+"','"+otherMobileNumber+"',"+userId+",'"+driverMobileOnTrack+"','"+vehicleNumber+"',"+totalTrackCount+",'"+startDate+"','"+from+"','"+to+"')",{ type: Sequelize.QueryTypes.INSERT });
+        console.log(createTracking);
+        var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+userId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
+        if(createTracking.slice(-1)[0] > 0) {
+            res.status(200).json({success:true}); //Return json with data or empty
+        } else {
+            res.status(200).json({success:false});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }
 }
 /************************* Create Tracking ends *******************************/
 
 /************************* Edit Tracking start *******************************/
 exports.editTracking = async function(req, res, next) {
+    var userId = req.body.userId;
     var organizationId = req.body.organizationId;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    var branchId = req.body.branchId;
+    var startDate = req.body.startDate;
+    var vehicleNumber = req.body.vehicleNumber;
+    var driverNumber = req.body.driverNumber;
+    var driverName = req.body.driverName;
+    var otherMobileNumber = req.body.otherMobileNumber;
+    var driverMobileOnTrack = req.body.driverMobileOnTrack;
+    var from = req.body.from;
+    var to = req.body.to;
+    var totalTrackCount = req.body.totalTrackCount;
+    var trackingId = req.body.trackingId;
+    if(trackingId1='' && userId!='' && organizationId!='' && branchId!='' && startDate!='' && vehicleNumber!='' && driverNumber!='' && driverName!='' && otherMobileNumber!='' && driverMobileOnTrack!='' && from!='' && to!='' && totalTrackCount!=''){
+        if(setOrganizationStatus.slice(-1)[0] > 0) {
+            res.status(200).json({success:true}); //Return json with data or empty
+        } else {
+            res.status(200).json({success:false});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    }
 }
 /************************* Edit Tracking ends *******************************/
 
