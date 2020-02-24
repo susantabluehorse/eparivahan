@@ -1,9 +1,14 @@
-var models = require('../../../models');
+var path = require('path');
+var modelsPath = path.join(__dirname, '../../../', 'models');
+var models = require(modelsPath);
 var jwt = require('jsonwebtoken');
 var SECRET = 'nodescratch';
 var fs = require('file-system');
 var bcrypt = require('bcrypt-nodejs');
-var config = require('../../../config/config.json');
+var configPath = path.join(__dirname, '../../../', 'config', 'config.json');
+var config = require(configPath);
+var validationPath = path.join(__dirname, '../../../', 'validations', 'validation.js');
+var validation = require(validationPath);
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize(
     config.development.database, 
@@ -23,11 +28,9 @@ var sequelize = new Sequelize(
 
 /************************* candidate category list api start *******************************/
 exports.generateReport = async function(req, res, next) {
-    var organization_Id = req.body.organizationId;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    var type = req.body.type;
-    if(fromDate !='' && type !='' && toDate !=''){
+    const { organizationId, fromDate, toDate, type } = req.body;
+    var mobileVali = validation.getTrackingCount(req.body);
+    if(mobileVali.passes()===true){
         var branchs = await sequelize.query("SELECT * FROM `branchs`",{ type: Sequelize.QueryTypes.SELECT });
         var data='';        
         data +='ID\tEnterpriseId\tName\tContactName\tContactEmail\tContactNumber\tAddress\tLatitude\tLongitude\tStatus\tCreatedAt\tUpdatedAt\n';        
@@ -42,7 +45,7 @@ exports.generateReport = async function(req, res, next) {
             res.status(200).json({ success: "true",data: 'reports/branchsList_'+nameDateTime+'.xls'});// Return json with error massage
         });
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors}); // Return json with error massage
     }    
 }
 /************************* candidate category list api ends *******************************/

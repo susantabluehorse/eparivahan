@@ -1,11 +1,16 @@
-var models = require('../../../models');
+var path = require('path');
+var modelsPath = path.join(__dirname, '../../../', 'models');
+var models = require(modelsPath);
 var jwt = require('jsonwebtoken');
 var SECRET = 'nodescratch';
 var fs = require('file-system');
 var bcrypt = require('bcrypt-nodejs');
-var config = require('../../../config/config.json');
+var configPath = path.join(__dirname, '../../../', 'config', 'config.json');
+var config = require(configPath);
+var validationPath = path.join(__dirname, '../../../', 'validations', 'validation.js');
+var validation = require(validationPath);
 var Sequelize = require("sequelize");
-const https = require('https');
+var https = require("https");
 var sequelize = new Sequelize(
     config.development.database, 
     config.development.username,
@@ -21,11 +26,11 @@ var sequelize = new Sequelize(
         //storage: 'path/to/database.sqlite'
     }
 );
-
 /************************* Login start *******************************/
 exports.getLogin = async function(req, res, next) {
-    var mobile = req.body.mobile;
-    if(mobile!=''){
+    const { mobile } = req.body;
+    var mobileVali = validation.Login(req.body);
+    if(mobileVali.passes()===true){
         var userDetails =await sequelize.query("SELECT `id`,`user_type`,`status`,`created_by` FROM `users` WHERE `mobile`='"+mobile+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(userDetails.length > 0) { //query result length check
             if(userDetails[0].user_type=='consignee' && userDetails[0].status=='active' ){
@@ -39,17 +44,17 @@ exports.getLogin = async function(req, res, next) {
         } else {
             res.status(200).json({ success: "false",data: "User not find" }); //Return json with data or empty
         }
-    }else{
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    } else {
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Login ends *******************************/
 
 /************************* Verify Otp start *******************************/
 exports.getLoginVerifyOtp = async function(req, res, next) {
-    var otp = req.body.otp;
-    var userId = req.body.userId;
-    if(userId!='' && otp!=''){
+    const { otp, userId } = req.body;
+    var mobileVali = validation.LoginVerifyOtp(req.body);
+    if(mobileVali.passes()===true){
         var otpDetails =await sequelize.query("SELECT `id` FROM `user_otp` WHERE `user_id`="+userId+" AND `status`='active' AND `user_otp`="+otp+"",{ type: Sequelize.QueryTypes.SELECT });
         if(otpDetails.length > 0) { //query result length check
             var otpDetails =await sequelize.query("UPDATE `user_otp` SET `status`='inactive' WHERE `id`="+otpDetails[0].id+"",{ type: Sequelize.QueryTypes.UPDATE });
@@ -57,8 +62,8 @@ exports.getLoginVerifyOtp = async function(req, res, next) {
         } else {
             res.status(200).json({ success: "false",data: "Please enter right otp"});// Return json with error massage
         }
-    }else{
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+    } else {
+        res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Verify Otp ends *******************************/

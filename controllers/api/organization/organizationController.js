@@ -1,9 +1,14 @@
-var models = require('../../../models');
+var path = require('path');
+var modelsPath = path.join(__dirname, '../../../', 'models');
+var models = require(modelsPath);
 var jwt = require('jsonwebtoken');
 var SECRET = 'nodescratch';
 var fs = require('file-system');
 var bcrypt = require('bcrypt-nodejs');
-var config = require('../../../config/config.json');
+var configPath = path.join(__dirname, '../../../', 'config', 'config.json');
+var config = require(configPath);
+var validationPath = path.join(__dirname, '../../../', 'validations', 'validation.js');
+var validation = require(validationPath);
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize(
     config.development.database, 
@@ -20,13 +25,11 @@ var sequelize = new Sequelize(
         //storage: 'path/to/database.sqlite'
     }
 );
-
 /************************* Set Organization Status Start *******************************/
 exports.setOrganizationStatus = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var userId = req.body.userId;
-    var status = req.body.status;
-    if(status !='' && organizationId !='' && userId !=''){
+    const { organizationId, userId, status } = req.body;
+    var mobileVali = validation.setOrganizationStatus(req.body);
+    if(mobileVali.passes()===true){
         var OrganizationStatus =await sequelize.query("SELECT `e`.`id` AS Id FROM `enterprises` AS e INNER JOIN `users` AS u ON `u`.`enterprise_id`=`e`.`id` WHERE `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
         if(OrganizationStatus.length > 0){
             var setOrganizationStatus =await sequelize.query("UPDATE enterprises SET `status`='"+status+"' WHERE `id`="+OrganizationStatus[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
@@ -39,17 +42,16 @@ exports.setOrganizationStatus = async function(req, res, next) {
             res.status(200).json({success:false});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Set Organization Status Ends *******************************/
 
 /************************* Get Load By Organization By Id Start *******************************/
 exports.getLoadByOrganizationById = async function(req, res, next) {
-    var organization_Id = req.body.organizationId;
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    if(organization_Id !='', fromDate !='', toDate !=''){
+    const { organization_Id, fromDate, toDate } = req.body;
+    var mobileVali = validation.getLoadByOrganizationById(req.body);
+    if(mobileVali.passes()===true){
         var organizationId = (organization_Id > 0) ? " AND `e`.`id`="+organization_Id : '';
         var OrganizationById = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
         if(OrganizationById.length > 0){ //query result length check
@@ -67,22 +69,19 @@ exports.getLoadByOrganizationById = async function(req, res, next) {
             res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Get Load By Organization By Id Ends *******************************/
 
 /************************* Get Complete Organization List Start *******************************/
 exports.getCompleteOrganizationList = async function(req, res, next) {
-    var fromDate = req.body.fromDate;
-    var toDate = req.body.toDate;
-    var fromCount = req.body.fromCount;
-    var toCount = req.body.toCount;
-    var sort_By = req.body.sortBy;
-    if(fromCount >= 0, toCount > fromCount, fromDate !='', toDate !=''){
-        var sortBy = (sort_By == 'name') ? " ORDER BY organisation_name ASC" : " ORDER BY status ASC";
+    const { fromCount, fromDate, toDate, toCount, sortBy } = req.body;
+    var mobileVali = validation.getCompleteOrganizationList(req.body);
+    if(mobileVali.passes()===true){
+        var sort_By = (sortBy == 'name') ? " ORDER BY `e`.`organisation_name` ASC" : " ORDER BY `e`.`status` ASC";
         var limit = " LIMIT "+toCount+" OFFSET "+fromCount+"";
-        var CompleteOrganizationList = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `ec`.`contact_person` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+sortBy+limit+"",{ type: Sequelize.QueryTypes.SELECT });
+        var CompleteOrganizationList = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `ec`.`contact_person` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE DATE(`e`.`created_at`)>='"+fromDate+"' AND DATE(`e`.`created_at`) <='"+toDate+"'"+sort_By+limit+"",{ type: Sequelize.QueryTypes.SELECT });
         if(CompleteOrganizationList.length > 0){ //query result length check
             CompleteOrganizationList.forEach(async function(k,p){
                 CompleteOrganizationList[p]['ListOfBranch'] = []; //create ListOfBranch array
@@ -112,15 +111,16 @@ exports.getCompleteOrganizationList = async function(req, res, next) {
             res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Get Complete Organization List Ends *******************************/
 
 /************************* Get Complete Organization List Start *******************************/
 exports.searchOrganizationInDetails = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    if(organizationId != ''){
+    const { organizationId } = req.body;
+    var mobileVali = validation.searchOrganizationInDetails(req.body);
+    if(mobileVali.passes()===true){
         var CompleteOrganizationList = await sequelize.query("SELECT `e`.`id` AS organizationId, `e`.`organisation_name` AS organizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `ec`.`contact_person` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile FROM `enterprises` AS e LEFT JOIN `enterprise_contacts` AS ec ON `ec`.`enterprise_id`=`e`.`id` WHERE `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
         if(CompleteOrganizationList.length > 0){ //query result length check
             CompleteOrganizationList.forEach(async function(k,p){
@@ -151,52 +151,53 @@ exports.searchOrganizationInDetails = async function(req, res, next) {
             res.status(200).json({ success: "false",data: "No data found!"});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Get Complete Organization List Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.addUserToOrganization = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var userName = req.body.userName;
-    var userMobileNumber = req.body.userMobileNumber;
-    var userRole = req.body.userRole;
-    if(organizationId != '' && userName != '' && userMobileNumber != '' && userRole != ''){
-        var addUserToOrganization = await sequelize.query("INSERT INTO `users`(`enterprise_id`, `name`,  `mobile`, `user_type`) VALUES ("+organizationId+",'"+userName+"','"+userMobileNumber+"','"+userRole+"')",{ type: Sequelize.QueryTypes.INSERT });
-        if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
-            res.status(200).send({ success: 'true'}); //Return json with data or empty
-        }else{
-            res.status(200).json({ success: 'false'});// Return json with error massage
+    const { organizationId, userName, emailId, userMobileNumber, userRole } = req.body;
+    var mobileVali = validation.addUserToOrganization(req.body);
+    if(mobileVali.passes()===true){
+        var existUser = await sequelize.query("SELECT id FROM `users` WHERE `email`='"+emailId+"' OR `mobile`='"+userMobileNumber+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(existUser.length = 0){
+            var addUserToOrganization = await sequelize.query("INSERT INTO `users`(`enterprise_id`, `name`, `email`, `mobile`, `user_type`) VALUES ("+organizationId+",'"+userName+"','"+emailId+"','"+userMobileNumber+"','"+userRole+"')",{ type: Sequelize.QueryTypes.INSERT });
+            if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
+                res.status(200).send({ success: 'true'}); //Return json with data or empty
+            }else{
+                res.status(200).json({ success: 'false'});// Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: 'false',data: 'User already exist'});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.removeUserFromOrganization = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var userId = req.body.userId;
-    if(organizationId != '' && userId != ''){
+    const { organizationId, userId } = req.body;
+    var mobileVali = validation.removeUserFromOrganization(req.body);
+    if(mobileVali.passes()===true){
         var removeUserFromOrganization = await sequelize.query("DELETE FROM `users` WHERE `id`="+userId+" AND `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.DELETE });
         res.status(200).send({ success: 'true'}); //Return json with data or empty
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.addBranchToOrganization = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var BranchName = req.body.BranchName;
-    var BranchContactPerson = req.body.BranchContactPerson;
-    var BranchContactNumber = req.body.BranchContactNumber;
     var lat = req.body.BranchLocation.lat;
     var lang = req.body.BranchLocation.lang;
-    if(organizationId != '' && BranchName != '' && BranchContactPerson != '' && BranchContactNumber != ''&& lat != '' && lang != ''){
+    const { organizationId, BranchName, BranchContactPerson, BranchContactNumber} = req.body;
+    var mobileVali = validation.addBranchToOrganization(req.body);
+    if(mobileVali.passes()===true){
         var addUserToOrganization = await sequelize.query("INSERT INTO `branchs`(`enterprise_id`, `name`, `contact_name`, `contact_number`,`latitude`, `longitude`) VALUES ("+organizationId+",'"+BranchName+"','"+BranchContactPerson+"','"+BranchContactNumber+"','"+lat+"','"+lang+"')",{ type: Sequelize.QueryTypes.INSERT });
         if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
             res.status(200).send({ success: 'true'}); //Return json with data or empty
@@ -204,48 +205,42 @@ exports.addBranchToOrganization = async function(req, res, next) {
             res.status(200).json({ success: 'false'});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.removeBranchToOrganization = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var BranchId = req.body.BranchId;
-    if(organizationId != '' && BranchId != ''){
-        var removeBranchToOrganization = await sequelize.query("DELETE FROM `branchs` WHERE `id`="+BranchId+" AND `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.DELETE });
+    const { organizationId, branchId } = req.body;
+    var mobileVali = validation.removeBranchToOrganization(req.body);
+    if(mobileVali.passes()===true){
+        var removeBranchToOrganization = await sequelize.query("DELETE FROM `branchs` WHERE `id`="+branchId+" AND `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.DELETE });
         res.status(200).send({ success: 'true'}); //Return json with data or empty
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.searchUser = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    if(organizationId != ''){
+    const { organizationId } = req.body;
+    var mobileVali = validation.searchOrganizationInDetails(req.body);
+    if(mobileVali.passes()===true){
         var searchUser = await sequelize.query("SELECT `id` AS userId, `enterprise_id` AS organizationId, `name` AS UserName, `mobile` AS UserMobileNumber, `user_type` AS UserRole  FROM `users` WHERE `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
         res.status(200).send({ success: 'true',data: searchUser}); //Return json with data or empty
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.editOrganizationById = async function(req, res, next) {
-    var organizationId = req.body.organizationId;
-    var organisationName = req.body.organisationName;
-    var type = req.body.type;
-    var country = req.body.country;
-    var city = req.body.city;
-    var state = req.body.state;
-    var pincode = req.body.pincode;
-    var contactNo = req.body.contactNo;
-    var currency = req.body.currency;
-    if(organisationName != '' && type != '' && country != '' && city != ''&& state != '' && pincode != '' && contactNo != '' && currency != ''){
+    const { organizationId, organisationName, type, country, city, state, pincode, contactNo, currency } = req.body;
+    var mobileVali = validation.editOrganizationById(req.body);
+    if(mobileVali.passes()===true){
         var addUserToOrganization = await sequelize.query("UPDATE `enterprises` SET `organisation_name`='"+organisationName+"', `type`='"+type+"', `country`='"+country+"', `city`='"+city+"', `state`='"+state+"', `pincode`='"+pincode+"', `primary_contact_no`='"+contactNo+"', `currency`='"+currency+"' WHERE `id`="+organizationId+"",{ type: Sequelize.QueryTypes.UPDATE });
         if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
             res.status(200).send({ success: 'true'}); //Return json with data or empty
@@ -253,30 +248,29 @@ exports.editOrganizationById = async function(req, res, next) {
             res.status(200).json({ success: 'false'});// Return json with error massage
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
 
 /************************* Add User To Organization Start *******************************/
 exports.createOrganizationById = async function(req, res, next) {
-    var organisationName = req.body.organisationName;
-    var type = req.body.type;
-    var country = req.body.country;
-    var city = req.body.city;
-    var state = req.body.state;
-    var pincode = req.body.pincode;
-    var contactNo = req.body.contactNo;
-    var currency = req.body.currency;
-    if(organisationName != '' && type != '' && country != '' && city != ''&& state != '' && pincode != '' && contactNo != '' && currency != ''){
-        var createOrganizationById = await sequelize.query("INSERT INTO `enterprises`(`organisation_name`, `type`, `country`, `city`, `state`, `pincode`, `primary_contact_no`, `currency`) VALUES ('"+organisationName+"', '"+type+"', '"+country+"', '"+city+"', '"+state+"', '"+pincode+"', '"+contactNo+"', '"+currency+"')",{ type: Sequelize.QueryTypes.INSERT });
-        if(createOrganizationById.slice(-1)[0] > 0){ //query result length check
-            res.status(200).send({ success: 'true'}); //Return json with data or empty
-        }else{
-            res.status(200).json({ success: 'false'});// Return json with error massage
+    const { organisationName, emailId, type, country, city, state, pincode, contactNo, currency } = req.body;
+    var mobileVali = validation.createOrganizationById(req.body);
+    if(mobileVali.passes()===true){
+        var existOrganization = await sequelize.query("SELECT id FROM `enterprises` WHERE `email`='"+emailId+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(existOrganization.length = 0){
+            var createOrganizationById = await sequelize.query("INSERT INTO `enterprises`(`organisation_name`, `type`, `country`, `city`, `state`, `pincode`, `primary_contact_no`, `currency`) VALUES ('"+organisationName+"', '"+type+"', '"+country+"', '"+city+"', '"+state+"', '"+pincode+"', '"+contactNo+"', '"+currency+"')",{ type: Sequelize.QueryTypes.INSERT });
+            if(createOrganizationById.slice(-1)[0] > 0){ //query result length check
+                res.status(200).send({ success: 'true'}); //Return json with data or empty
+            }else{
+                res.status(200).json({ success: 'false'});// Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: 'false',data: 'Organisation already exist'});//
         }
     } else {
-        res.status(200).json({ success: "false",data: "All fileds are required!"});// Return json with error massage
+        res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
     }
 }
 /************************* Remove User To Organization Ends *******************************/
