@@ -1,4 +1,17 @@
 let Validator = require('validatorjs');
+exports.accessToken = (req) => {
+	let data = {
+		access_token: req.access_token
+	};
+	let rules = {
+		access_token: 'required|string'
+	};
+	let error = {
+		access_token: 'Access token must be string'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
 exports.Login = (req) => {
 	let data = {
 		mobile: req.mobile
@@ -14,15 +27,15 @@ exports.Login = (req) => {
 };
 exports.LoginVerifyOtp = (req) => {
 	let data = {
-		userId: req.userId,
+		mobile: req.mobile,
 		otp: req.otp
 	};
 	let rules = {
-		userId: 'required|numeric',
+		mobile: 'required|numeric',
 		otp: 'required|digits:6',
 	};
 	let error = {
-		userId: 'User id must be numeric',
+		mobile: 'Mobile must be numeric',
 		otp: 'OTP must be numeric and 6 digits',
 	};
 	let validation = new Validator(data, rules, error);
@@ -44,6 +57,31 @@ exports.getTrackingCount = (req) => {
 	let error = {
 		userId: 'User id must be numeric',
 		role: 'Role must be string',
+		fromDate: 'From date must be 2020-01-01',
+		toDate: 'To date must be 2020-01-01'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getTrackingHistory = (req) => {
+	let data = {
+		userId: req.userId,
+		role: req.role,
+		shipperId: req.shipperId,
+		fromDate: req.fromDate,
+		toDate: req.toDate
+	};
+	let rules = {
+		userId: 'required|numeric',
+		role: 'required|string',
+		shipperId: 'numeric',
+		fromDate: 'required|date',
+		toDate: 'required|date'
+	};
+	let error = {
+		userId: 'User id must be numeric',
+		role: 'Role must be string',
+		shipperId: 'Shipper Id must be string',
 		fromDate: 'From date must be 2020-01-01',
 		toDate: 'To date must be 2020-01-01'
 	};
@@ -709,9 +747,9 @@ exports.addContactandMobileNumber = (req) => {
 	let data = {
 		trackingId: req.trackingId,
 		organizationId: req.organizationId,
-		contactName: req.contactName,
-		contactMobileNumber: req.contactMobileNumber,
-		trackables: req.trackables,
+		contactName: req.addMobileNumber.contactName,
+		contactMobileNumber: req.addMobileNumber.contactMobileNumber,
+		trackable: req.addMobileNumber.trackable,
 		userId: req.userId
 	};
 	let rules = {
@@ -719,7 +757,7 @@ exports.addContactandMobileNumber = (req) => {
 		organizationId: 'required|numeric',
 		contactName: 'required|string',
 		contactMobileNumber: 'required|numeric',
-		trackables: 'required|numeric',
+		trackable: 'required|string',
 		userId: 'required|numeric'
 	};
 	let error = {
@@ -727,7 +765,7 @@ exports.addContactandMobileNumber = (req) => {
 		organizationId: 'Organization id must be numeric',
 		contactName: 'Contact name must be string',
 		contactMobileNumber: 'Contact mobile number must be numeric',
-		trackables: 'Trackables must be numeric',
+		trackable: 'Trackables must be numeric',
 		userId: 'User id must be numeric'
 	};
 	let validation = new Validator(data, rules, error);
@@ -769,7 +807,7 @@ exports.generateReport = (req) => {
 		type: req.type
 	};
 	let rules = {
-		organizationId: 'required|numeric',
+		organizationId: 'numeric',
 		fromDate: 'required|date',
 		toDate: 'required|date',
 		type: 'required|string'

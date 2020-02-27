@@ -15,11 +15,7 @@ router.post('/login/verify-otp',loginController.getLoginVerifyOtp);
 /*Analysis Controller End*/
 
 /*Analysis Controller Start*/
-router.post('/analysis/search-tracking',analysisController.getSearchTracking);
-router.post('/analysis/complete-tracking-list',analysisController.getCompleteTrackingList);
 router.post('/analysis/change-tracking-status',analysisController.getChangeTrackingStatus);
-router.post('/analysis/enable-disable-tracking',analysisController.getEnableDisableTracking);
-router.post('/analysis/tracking-details',analysisController.getTrackingDetails);
 /*Analysis Controller End*/
 
 /*Dashboard Controller Start*/

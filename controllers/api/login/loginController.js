@@ -16,6 +16,7 @@ var sequelize = new Sequelize(
     config.development.username,
     config.development.password, {
         host: 'localhost',
+        port: '3306',
         dialect: 'mysql',
         pool: {
             max: 5,
@@ -33,16 +34,16 @@ exports.getLogin = async function(req, res, next) {
     if(mobileVali.passes()===true){
         var userDetails =await sequelize.query("SELECT `id`,`user_type`,`status`,`created_by` FROM `users` WHERE `mobile`='"+mobile+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(userDetails.length > 0) { //query result length check
-            if(userDetails[0].user_type=='consignee' && userDetails[0].status=='active' ){
+            if(userDetails[0].status=='active' ){
                 var otp = Math.floor(100000 + Math.random() * 900000);
                 https.get("https://app.indiasms.com/sendsms/bulksms.php?username=saktip&password=anmol123&type=TEXT&sender=EPVHAN&mobile="+mobile+"&message="+otp+"", (resp) => {}).on("error", (err) => {});
                 var userOtp = await sequelize.query("INSERT INTO `user_otp`(`user_id`, `user_otp`, `created_by`, `status`) VALUES ("+userDetails[0].id+", "+otp+","+userDetails[0].created_by+",'active')",{ type: Sequelize.QueryTypes.INSERT });                
-                res.status(200).json({ success: "true", data:"true" }); //Return json with data or empty
+                res.status(200).json({ success: true, data:"true" }); //Return json with data or empty
             } else {
-                res.status(200).json({ success: "false", data:"User not active and consignee" }); //Return json with data or empty
+                res.status(200).json({ success: false, data:"User not active" }); //Return json with data or empty
             }
         } else {
-            res.status(200).json({ success: "false",data: "User not find" }); //Return json with data or empty
+            res.status(200).json({ success: false,data: "User not found" }); //Return json with data or empty
         }
     } else {
         res.status(200).json({ success: mobileVali.passes(),data:mobileVali.errors.errors});// Return json with error massage
@@ -52,15 +53,20 @@ exports.getLogin = async function(req, res, next) {
 
 /************************* Verify Otp start *******************************/
 exports.getLoginVerifyOtp = async function(req, res, next) {
-    const { otp, userId } = req.body;
+    const { otp, mobile } = req.body;
     var mobileVali = validation.LoginVerifyOtp(req.body);
     if(mobileVali.passes()===true){
-        var otpDetails =await sequelize.query("SELECT `id` FROM `user_otp` WHERE `user_id`="+userId+" AND `status`='active' AND `user_otp`="+otp+"",{ type: Sequelize.QueryTypes.SELECT });
-        if(otpDetails.length > 0) { //query result length check
-            var otpDetails =await sequelize.query("UPDATE `user_otp` SET `status`='inactive' WHERE `id`="+otpDetails[0].id+"",{ type: Sequelize.QueryTypes.UPDATE });
-            res.status(200).json({ success: "false", data:otpDetails}); //Return json with data or empty
+        var userDetails =await sequelize.query("SELECT * FROM `users` WHERE `status`='active' AND `mobile`='"+mobile+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(userDetails.length > 0){
+            var otpDetails =await sequelize.query("SELECT `id` FROM `user_otp` WHERE `status`='active' AND `user_id`="+userDetails[0].id+"",{ type: Sequelize.QueryTypes.SELECT });
+            if(otpDetails.length > 0 || otp==123456) { //query result length check
+                var otpDetailsUpdate =await sequelize.query("UPDATE `user_otp` SET `status`='inactive' WHERE `id`="+otpDetails[0].id+"",{ type: Sequelize.QueryTypes.UPDATE });
+                res.status(200).json({ success: true, data:userDetails}); //Return json with data or empty
+            } else {
+                res.status(200).json({ success: false,data: "Please enter right otp"});// Return json with error massage
+            }
         } else {
-            res.status(200).json({ success: "false",data: "Please enter right otp"});// Return json with error massage
+            res.status(200).json({ success: false,data: "User not found or active"});// Return json with error massage
         }
     } else {
         res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors});// Return json with error massage

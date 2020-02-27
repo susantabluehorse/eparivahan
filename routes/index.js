@@ -7,7 +7,7 @@ var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 /* GET home page. */
 router.get('/', function(req, res) {
-    res.redirect('/admin/dashboard');
+    res.redirect('/api/v1/login');
   //res.render('index', { title: 'Express' });
 });
 
