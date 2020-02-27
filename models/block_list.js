@@ -1,5 +1,4 @@
 var Sequelize = require("sequelize");
-
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('block_list', {
     id: {
