@@ -11,10 +11,10 @@ var validationPath = path.join(__dirname, '../../../', 'validations', 'validatio
 var validation = require(validationPath);
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize(
-    config.development.database, 
-    config.development.username,
-    config.development.password, {
-        host: 'localhost',
+    config.test.database, 
+    config.test.username,
+    config.test.password, {
+        host: '103.234.117.16',
         port: '3306',
         dialect: 'mysql',
         pool: {
@@ -198,10 +198,10 @@ exports.getTrackingAdd = async function(req, res, next) {
                 var tos = JSON.stringify(to);
                 var otherLocations = JSON.stringify(otherLocation);
                 var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`tracking_count`,`max_tracking_count`, `driver_mobile_number`, `comment`, `tracked_by_user_id`, `driver_name`, `vehicle_number`,`other_mobile_number`, `driver_mobile_on_track`, `from_location`, `to_location`, `start_date`, `created_by`,`other_location`) VALUES (0, "+totalTrackCount+", '"+driverNumber+"', '"+comment+"', "+userId+", '"+driverName+"', '"+vehicleNumber+"', '"+otherMobileNumbers+"', "+driverMobileOnTrack+", '"+froms+"', '"+tos+"', '"+startDate+"', "+userId+",'"+otherLocations+"')",{ type: Sequelize.QueryTypes.INSERT });
+                var TrId = createTracking.slice(0,1);
+                var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='inactive' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
+                var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
                 if(createTracking.slice(-1)[0] > 0) {
-                    var TrId = createTracking.slice(0,1);
-                    var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='inactive' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
-                    var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
                     var trakId = createTracking.slice(0,1);
                     res.status(200).send({ success: true,"trackingId":trakId[0]}); //Return json with data or empty
                 } else {

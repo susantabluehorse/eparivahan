@@ -35,12 +35,17 @@ router.post('/organization/load-by-organization-by-id',organizationController.ge
 router.post('/organization/complete-organization-list',organizationController.getCompleteOrganizationList);
 router.post('/organization/search-organization-in-details',organizationController.searchOrganizationInDetails);
 router.post('/organization/add-user-organization',organizationController.addUserToOrganization);
+router.post('/organization/edit-user-organization',organizationController.editUserToOrganization);
 router.post('/organization/remove-user-organization',organizationController.removeUserFromOrganization);
 router.post('/organization/add-branch-organization',organizationController.addBranchToOrganization);
+router.post('/organization/edit-branch-organization',organizationController.editBranchToOrganization);
 router.post('/organization/remove-branch-organization',organizationController.removeBranchToOrganization);
 router.post('/organization/search-user',organizationController.searchUser);
+router.post('/organization/search-branch',organizationController.searchBranch);
 router.post('/organization/edit-organization-by-id',organizationController.editOrganizationById);
 router.post('/organization/add-organization-by-id',organizationController.createOrganizationById);
+router.post('/organization/get-organization-by-id',organizationController.getOrganizationById);
+router.post('/organization/get-organization-totalorg-count',organizationController.getTotalorgCount);
 /*Organization Controller End*/
 
 /*Report Controller Start*/
@@ -63,5 +68,10 @@ router.post('/tracking/update-tracking-details',trackingController.updateTrackin
 router.post('/tracking/update-tracking-active',trackingController.updateTrackingActive);
 router.post('/tracking/update-active-mobile-number',trackingController.updateActiveMobileNumber);
 router.post('/tracking/add-contact-mobile-number',trackingController.addContactandMobileNumber);
+router.post('/tracking/bulk-traking-upload',trackingController.bulkTrakingUpload);
+router.post('/tracking/total-tracking-count',trackingController.getTotalTrackingCount);
+router.post('/tracking/edit-other-mobile-number',trackingController.editOtherMobileNumber);
+router.post('/tracking/edit-other-location',trackingController.editOtherLocation);
+router.post('/tracking/edit/tracking',trackingController.editParticularSection);
 /*Tracking Controller End*/
 module.exports = router;
