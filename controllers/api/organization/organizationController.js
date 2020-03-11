@@ -527,3 +527,37 @@ exports.getTotalorgCount = async function(req, res, next) {
     }
 }
 /************************* Remove User To Organization Ends *******************************/
+
+/************************* active Inactive Shipper start *******************************/
+exports.uploadOrganizationLogo = async function(req, res, next) {
+    const { access_token } = req.headers;
+    var header = validation.accessToken(req.headers);
+    if(header.passes()===true){
+        var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(accessToken.length > 0){
+            const { organizationId, logo, logoType, type } = req.body;   
+            var mobileVali = validation.uploadOrganizationLogo(req.body);
+            if(mobileVali.passes()===true){
+                // to declare some path to store your converted image
+                const path = './public/enterprises/'+ organizationId +'/logo.'+logoType;
+                const imgdata = logo;
+                const base64Data = imgdata.replace(/^data:([A-Za-z-+/]+);base64,/, '');
+                fs.writeFileSync(path, base64Data,  {encoding: 'base64'});
+                let logoT = 'enterprises/'+ organizationId +'/logo.'+logoType;
+                var uploadOrganizationLogo = await sequelize.query("UPDATE `enterprises` SET `logo`='"+logoT+"' WHERE `id`="+organizationId+"",{ type: Sequelize.QueryTypes.UPDATE });
+                if(uploadOrganizationLogo.slice(-1)[0] > 0){ //query result length check
+                    res.status(200).send({ success: true}); //Return json with data or empty
+                }else{
+                    res.status(200).json({ success: false});// Return json with error massage
+                }
+            } else {
+                res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors});// Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: false,data: 'You dont have permission to access'});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: header.passes(),data: header.errors.errors});// Return json with error massage
+    }
+}
+/************************* active Inactive Shipper ends *******************************/

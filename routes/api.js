@@ -46,6 +46,7 @@ router.post('/organization/edit-organization-by-id',organizationController.editO
 router.post('/organization/add-organization-by-id',organizationController.createOrganizationById);
 router.post('/organization/get-organization-by-id',organizationController.getOrganizationById);
 router.post('/organization/get-organization-totalorg-count',organizationController.getTotalorgCount);
+router.post('/organization/upload-image',organizationController.uploadOrganizationLogo);
 /*Organization Controller End*/
 
 /*Report Controller Start*/
