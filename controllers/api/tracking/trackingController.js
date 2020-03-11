@@ -786,3 +786,214 @@ exports.editParticularSection = async function(req, res, next) {
     }
 }
 /************************* Update Active Mobile Number ends *******************************/
+
+/************************* Bulk traking Upload start *******************************/
+exports.bulkTrakingUpload = async function(req, res, next) {
+    const readXlsxFile = require('read-excel-file/node');
+    const { access_token } = req.headers;
+    var header = validation.accessToken(req.headers);
+    if(header.passes()===true){
+        var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(accessToken.length > 0){
+            const { file } = req.body;
+            var getFile = helper.uploadXlsx(file);
+            var filePath = helper.getFile(getFile);
+            readXlsxFile(filePath).then((rows) => {
+                let newExcelArray = []; // new array
+                let arrkey = rows[0]; // get key
+                delete rows[0];// delete 0 position
+                rows.forEach(function(k,p){
+                    let newArray = {};
+                    for(var j = 0; j < k.length; j++){
+                        newArray[arrkey[j]]=k[j];
+                    }
+                    newExcelArray.push(newArray);
+                });
+                for (var w = 0; w < newExcelArray.length; w++) {
+                    var otherLocations=[];
+                    newExcelArray[w]['otherLocations'] = [];                    
+                    var otherMobileNumbers=[];
+                    newExcelArray[y]['otherMobileNumbers'] = [];
+                    if((newExcelArray[w].otherlocation_0_lat!=undefined && newExcelArray[w].otherlocation_0_lat!='') 
+                        && (newExcelArray[w].otherlocation_0_lang!=undefined && newExcelArray[w].otherlocation_0_lang!='') 
+                        && (newExcelArray[w].otherlocation_0_type!=undefined && newExcelArray[w].otherlocation_0_type!='')){
+                        let otherLocation = {'lat':newExcelArray[w].otherlocation_0_lat,'lang':newExcelArray[w].otherlocation_0_lang,'type':newExcelArray[w].otherlocation_0_type};
+                        otherLocations.push(otherLocation);
+                        delete newExcelArray[w]['otherlocation_0_lat'];
+                        delete newExcelArray[w]['otherlocation_0_lang'];
+                        delete newExcelArray[w]['otherlocation_0_type'];
+                    } else if(newExcelArray[w].otherlocation_0_lat!=undefined && newExcelArray[w].otherlocation_0_lang!=undefined &&  newExcelArray[w].otherlocation_0_type!=undefined){                            
+                        delete newExcelArray[w]['otherlocation_0_lat'];
+                        delete newExcelArray[w]['otherlocation_0_lang'];
+                        delete newExcelArray[w]['otherlocation_0_type'];
+                    }
+                    if((newExcelArray[w].otherlocation_1_lat!=undefined && newExcelArray[w].otherlocation_1_lat!='') 
+                        && (newExcelArray[w].otherlocation_1_lang!=undefined && newExcelArray[w].otherlocation_1_lang!='') 
+                        && (newExcelArray[w].otherlocation_1_type!=undefined && newExcelArray[w].otherlocation_1_type!='')){
+                        let otherLocation = {'lat':newExcelArray[w].otherlocation_1_lat,'lang':newExcelArray[w].otherlocation_1_lang,'type':newExcelArray[w].otherlocation_1_type};
+                        otherLocations.push(otherLocation);
+                        delete newExcelArray[w]['otherlocation_1_lat'];
+                        delete newExcelArray[w]['otherlocation_1_lang'];
+                        delete newExcelArray[w]['otherlocation_1_type'];
+                    } else if(newExcelArray[w].otherlocation_1_lat!=undefined && newExcelArray[w].otherlocation_1_lang!=undefined &&  newExcelArray[w].otherlocation_1_type!=undefined){                            
+                        delete newExcelArray[w]['otherlocation_1_lat'];
+                        delete newExcelArray[w]['otherlocation_1_lang'];
+                        delete newExcelArray[w]['otherlocation_1_type'];
+                    }
+                    if((newExcelArray[w].otherlocation_2_lat!=undefined && newExcelArray[w].otherlocation_2_lat!='') 
+                        && (newExcelArray[w].otherlocation_2_lang!=undefined && newExcelArray[w].otherlocation_2_lang!='') 
+                        && (newExcelArray[w].otherlocation_2_type!=undefined && newExcelArray[w].otherlocation_2_type!='')){
+                        let otherLocation = {'lat':newExcelArray[w].otherlocation_2_lat,'lang':newExcelArray[w].otherlocation_2_lang,'type':newExcelArray[w].otherlocation_2_type};
+                        otherLocations.push(otherLocation);
+                        delete newExcelArray[w]['otherlocation_2_lat'];
+                        delete newExcelArray[w]['otherlocation_2_lang'];
+                        delete newExcelArray[w]['otherlocation_2_type'];
+                    } else if(newExcelArray[w].otherlocation_2_lat!=undefined && newExcelArray[w].otherlocation_2_lang!=undefined &&  newExcelArray[w].otherlocation_2_type!=undefined){                            
+                        delete newExcelArray[w]['otherlocation_2_lat'];
+                        delete newExcelArray[w]['otherlocation_2_lang'];
+                        delete newExcelArray[w]['otherlocation_2_type'];
+                    }
+                    if((newExcelArray[w].otherlocation_3_lat!=undefined && newExcelArray[w].otherlocation_3_lat!='') 
+                        && (newExcelArray[w].otherlocation_3_lang!=undefined && newExcelArray[w].otherlocation_3_lang!='') 
+                        && (newExcelArray[w].otherlocation_3_type!=undefined && newExcelArray[w].otherlocation_3_type!='')){
+                        let otherLocation = {'lat':newExcelArray[w].otherlocation_3_lat,'lang':newExcelArray[w].otherlocation_3_lang,'type':newExcelArray[w].otherlocation_3_type};
+                        otherLocations.push(otherLocation);
+                        delete newExcelArray[w]['otherlocation_3_lat'];
+                        delete newExcelArray[w]['otherlocation_3_lang'];
+                        delete newExcelArray[w]['otherlocation_3_type'];
+                    } else if(newExcelArray[w].otherlocation_3_lat!=undefined && newExcelArray[w].otherlocation_3_lang!=undefined &&  newExcelArray[w].otherlocation_3_type!=undefined){                            
+                        delete newExcelArray[w]['otherlocation_3_lat'];
+                        delete newExcelArray[w]['otherlocation_3_lang'];
+                        delete newExcelArray[w]['otherlocation_3_type'];
+                    }
+                    newExcelArray[w]['otherLocations'] = JSON.stringify(otherLocations);
+                    let from = {};
+                    let to = {};
+                    if((newExcelArray[w].from_lat!=undefined && newExcelArray[w].from_lat!='') && (newExcelArray[w].from_lang!=undefined && newExcelArray[w].from_lang!='') 
+                    && (newExcelArray[w].from_city!=undefined && newExcelArray[w].from_city!='') && (newExcelArray[w].from_state!=undefined && newExcelArray[w].from_state!='')){
+                        from['lat']=newExcelArray[w].from_lat;
+                        from['lang']=newExcelArray[w].from_lang;
+                        from['city']=newExcelArray[w].from_city;
+                        from['state']=newExcelArray[w].from_state;
+                        delete newExcelArray[w]['from_lat'];
+                        delete newExcelArray[w]['from_lang'];
+                        delete newExcelArray[w]['from_city'];
+                        delete newExcelArray[w]['from_state'];
+                        newExcelArray[w]['from']=from;
+                    } else if(newExcelArray[w].from_lat!=undefined && newExcelArray[w].from_lang!=undefined 
+                    && newExcelArray[w].from_city!=undefined && newExcelArray[w].from_state!=undefined) {
+                        delete newExcelArray[w]['from_lat'];
+                        delete newExcelArray[w]['from_lang'];
+                        delete newExcelArray[w]['from_city'];
+                        delete newExcelArray[w]['from_state'];
+                        newExcelArray[w]['from']=from;
+                    }
+                    if((newExcelArray[w].to_lat!=undefined && newExcelArray[w].to_lat!='') && (newExcelArray[w].to_lang!=undefined && newExcelArray[w].to_lang!='') && (newExcelArray[w].to_reached!=undefined || newExcelArray[w].to_reached!='')
+                    && (newExcelArray[w].to_city!=undefined || newExcelArray[w].to_city!='') && (newExcelArray[w].to_state!=undefined || newExcelArray[w].to_state!='')){
+                        to['lat']=newExcelArray[w].to_lat;
+                        to['lang']=newExcelArray[w].to_lang;
+                        to['reached']=newExcelArray[w].to_reached;
+                        to['city']=newExcelArray[w].to_city;
+                        to['state']=newExcelArray[w].to_state;
+                        delete newExcelArray[w]['to_lat'];
+                        delete newExcelArray[w]['to_lang'];
+                        delete newExcelArray[w]['to_reached'];
+                        delete newExcelArray[w]['to_city'];
+                        delete newExcelArray[w]['to_state'];
+                        newExcelArray[w]['to']=to;
+                    } else if(newExcelArray[w].to_lat!=undefined && newExcelArray[w].to_lang!=undefined && newExcelArray[w].to_reached!=undefined 
+                    && newExcelArray[w].to_city!=undefined && newExcelArray[w].to_state!=undefined) {
+                        delete newExcelArray[w]['to_lat'];
+                        delete newExcelArray[w]['to_lang'];
+                        delete newExcelArray[w]['to_reached'];
+                        delete newExcelArray[w]['to_city'];
+                        delete newExcelArray[w]['to_state'];
+                        newExcelArray[w]['to']=to;
+                    }
+                    if((newExcelArray[w].otherMobileNumber_0_name!=undefined && newExcelArray[w].otherMobileNumber_0_name!='') 
+                        && (newExcelArray[w].otherMobileNumber_0_mobileNumber!=undefined && newExcelArray[w].otherMobileNumber_0_mobileNumber!='') 
+                        && (newExcelArray[w].otherMobileNumber_0_onTrack!=undefined && newExcelArray[w].otherMobileNumber_0_onTrack!='') 
+                        && (newExcelArray[w].otherMobileNumber_0_active!=undefined && newExcelArray[w].otherMobileNumber_0_active!='')){
+                        let otherMobileNumber = {'name':newExcelArray[w].otherMobileNumber_0_name,'mobileNumber':newExcelArray[w].otherMobileNumber_0_mobileNumber, 'onTrack':newExcelArray[w].otherMobileNumber_0_onTrack,'active':newExcelArray[w].otherMobileNumber_0_active};
+                        otherMobileNumbers.push(otherMobileNumber);
+                        delete newExcelArray[w]['otherMobileNumber_0_name'];
+                        delete newExcelArray[w]['otherMobileNumber_0_mobileNumber'];
+                        delete newExcelArray[w]['otherMobileNumber_0_onTrack'];
+                        delete newExcelArray[w]['otherMobileNumber_0_active'];
+                    } else if(newExcelArray[w].otherMobileNumber_0_name!=undefined && newExcelArray[w].otherMobileNumber_0_mobileNumber!=undefined 
+                        &&  newExcelArray[w].otherMobileNumber_0_onTrack!=undefined &&  newExcelArray[w].otherMobileNumber_0_active!=undefined){
+                        delete newExcelArray[w]['otherMobileNumber_0_name'];
+                        delete newExcelArray[w]['otherMobileNumber_0_mobileNumber'];
+                        delete newExcelArray[w]['otherMobileNumber_0_onTrack'];
+                        delete newExcelArray[w]['otherMobileNumber_0_active'];
+                    }
+                    if((newExcelArray[w].otherMobileNumber_1_name!=undefined && newExcelArray[w].otherMobileNumber_1_name!='') 
+                        && (newExcelArray[w].otherMobileNumber_1_mobileNumber!=undefined && newExcelArray[w].otherMobileNumber_1_mobileNumber!='') 
+                        && (newExcelArray[w].otherMobileNumber_1_onTrack!=undefined && newExcelArray[w].otherMobileNumber_1_onTrack!='') 
+                        && (newExcelArray[w].otherMobileNumber_1_active!=undefined && newExcelArray[w].otherMobileNumber_1_active!='')){
+                        let otherMobileNumber = {'name':newExcelArray[w].otherMobileNumber_1_name,'mobileNumber':newExcelArray[w].otherMobileNumber_1_mobileNumber, 'onTrack':newExcelArray[w].otherMobileNumber_1_onTrack,'active':newExcelArray[w].otherMobileNumber_1_active};
+                        otherMobileNumbers.push(otherMobileNumber);
+                        delete newExcelArray[w]['otherMobileNumber_1_name'];
+                        delete newExcelArray[w]['otherMobileNumber_1_mobileNumber'];
+                        delete newExcelArray[w]['otherMobileNumber_1_onTrack'];
+                        delete newExcelArray[w]['otherMobileNumber_1_active'];
+                    } else if(newExcelArray[w].otherMobileNumber_1_name!=undefined && newExcelArray[w].otherMobileNumber_1_mobileNumber!=undefined 
+                        &&  newExcelArray[w].otherMobileNumber_1_onTrack!=undefined &&  newExcelArray[w].otherMobileNumber_1_active!=undefined){
+                        delete newExcelArray[w]['otherMobileNumber_1_name'];
+                        delete newExcelArray[w]['otherMobileNumber_1_mobileNumber'];
+                        delete newExcelArray[w]['otherMobileNumber_1_onTrack'];
+                        delete newExcelArray[w]['otherMobileNumber_1_active'];
+                    }
+                    if((newExcelArray[w].otherMobileNumber_2_name!=undefined && newExcelArray[w].otherMobileNumber_2_name!='') 
+                        && (newExcelArray[w].otherMobileNumber_2_mobileNumber!=undefined && newExcelArray[w].otherMobileNumber_2_mobileNumber!='') 
+                        && (newExcelArray[w].otherMobileNumber_2_onTrack!=undefined && newExcelArray[w].otherMobileNumber_2_onTrack!='') 
+                        && (newExcelArray[w].otherMobileNumber_2_active!=undefined && newExcelArray[w].otherMobileNumber_2_active!='')){
+                        let otherMobileNumber = {'name':newExcelArray[w].otherMobileNumber_2_name,'mobileNumber':newExcelArray[w].otherMobileNumber_2_mobileNumber, 'onTrack':newExcelArray[w].otherMobileNumber_2_onTrack,'active':newExcelArray[w].otherMobileNumber_2_active};
+                        otherMobileNumbers.push(otherMobileNumber);
+                        delete newExcelArray[w]['otherMobileNumber_2_name'];
+                        delete newExcelArray[w]['otherMobileNumber_2_mobileNumber'];
+                        delete newExcelArray[w]['otherMobileNumber_2_onTrack'];
+                        delete newExcelArray[w]['otherMobileNumber_2_active'];
+                    } else if(newExcelArray[w].otherMobileNumber_2_name!=undefined && newExcelArray[y].otherMobileNumber_2_mobileNumber!=undefined 
+                        &&  newExcelArray[y].otherMobileNumber_2_onTrack!=undefined &&  newExcelArray[y].otherMobileNumber_2_active!=undefined){
+                        delete newExcelArray[y]['otherMobileNumber_2_name'];
+                        delete newExcelArray[y]['otherMobileNumber_2_mobileNumber'];
+                        delete newExcelArray[y]['otherMobileNumber_2_onTrack'];
+                        delete newExcelArray[y]['otherMobileNumber_2_active'];
+                    }
+                    if((newExcelArray[y].otherMobileNumber_3_name!=undefined && newExcelArray[y].otherMobileNumber_3_name!='') 
+                        && (newExcelArray[y].otherMobileNumber_3_mobileNumber!=undefined && newExcelArray[y].otherMobileNumber_3_mobileNumber!='') 
+                        && (newExcelArray[y].otherMobileNumber_3_onTrack!=undefined && newExcelArray[y].otherMobileNumber_3_onTrack!='') 
+                        && (newExcelArray[y].otherMobileNumber_3_active!=undefined && newExcelArray[y].otherMobileNumber_3_active!='')){
+                        let otherMobileNumber = {'name':newExcelArray[y].otherMobileNumber_3_name,'mobileNumber':newExcelArray[y].otherMobileNumber_3_mobileNumber, 'onTrack':newExcelArray[y].otherMobileNumber_3_onTrack,'active':newExcelArray[y].otherMobileNumber_3_active};
+                        otherMobileNumbers.push(otherMobileNumber);
+                        delete newExcelArray[y]['otherMobileNumber_3_name'];
+                        delete newExcelArray[y]['otherMobileNumber_3_mobileNumber'];
+                        delete newExcelArray[y]['otherMobileNumber_3_onTrack'];
+                        delete newExcelArray[y]['otherMobileNumber_3_active'];
+                    } else if(newExcelArray[y].otherMobileNumber_3_name!=undefined && newExcelArray[y].otherMobileNumber_3_mobileNumber!=undefined 
+                        &&  newExcelArray[y].otherMobileNumber_3_onTrack!=undefined &&  newExcelArray[y].otherMobileNumber_3_active!=undefined){
+                        delete newExcelArray[y]['otherMobileNumber_3_name'];
+                        delete newExcelArray[y]['otherMobileNumber_3_mobileNumber'];
+                        delete newExcelArray[y]['otherMobileNumber_3_onTrack'];
+                        delete newExcelArray[y]['otherMobileNumber_3_active'];
+                    }
+                    newExcelArray[y]['otherMobileNumbers'] = JSON.stringify(otherMobileNumbers);
+                }
+                for (var x = 0; x < newExcelArray.length; x++) {
+                    /*newExcelArray[x]['otherLocation'] = JSON.parse(newExcelArray[x].otherLocations);
+                    newExcelArray[x]['otherMobileNumbers:'] = JSON.parse(newExcelArray[x].otherMobileNumbers);
+                    delete newExcelArray[x].otherLocations;delete newExcelArray[x].otherMobileNumbers;*/
+                }
+                console.log(newExcelArray);
+            });
+            helper.deleteFile(filePath);
+            res.status(200).json({ success: false,data: 'nodata'});
+        } else {
+            res.status(200).json({ success: false,data: 'You dont have permission to access'});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: header.passes(),data: header.errors.errors});// Return json with error massage
+    }
+}
+/************************* Bulk traking Upload ends *******************************/
