@@ -12,6 +12,7 @@ var validation = require(validationPath);
 var helperPath = path.join(__dirname, '../../../', 'helpers', 'traking.js');
 var helper = require(helperPath);
 var Sequelize = require("sequelize");
+var https = require("https");
 var sequelize = new Sequelize(
     config.development.database, 
     config.development.username,
@@ -412,7 +413,7 @@ exports.createTracking = async function(req, res, next) {
                 var otherLocations = JSON.stringify(otherLocation);
                 var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`tracking_count`,`max_tracking_count`, `driver_mobile_number`, `comment`, `tracked_by_user_id`, `driver_name`, `vehicle_number`,`other_mobile_number`, `driver_mobile_on_track`, `from_location`, `to_location`, `start_date`, `created_by`,`other_location`) VALUES (0, "+totalTrackCount+", '"+driverNumber+"', '"+comment+"', "+userId+", '"+driverName+"', '"+vehicleNumber+"', '"+otherMobileNumbers+"', "+driverMobileOnTrack+", '"+froms+"', '"+tos+"', '"+startDate+"', "+userId+",'"+otherLocations+"')",{ type: Sequelize.QueryTypes.INSERT });
                 var TrId = createTracking.slice(0,1);
-                var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='inactive' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
+                var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='active' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
                 var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
                 if(createTracking.slice(-1)[0] > 0) {
                     var trakId = createTracking.slice(0,1);
@@ -472,10 +473,10 @@ exports.particularTrackingDetails = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId } = req.body;
+            const { trackingId, organizationId } = req.body;
             var mobileVali = validation.particularTrackingDetails(req.body);
             if(mobileVali.passes()===true){
-                var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(SearchOrganization.length > 0) { //query result length check
                     for (var p = 0; p < SearchOrganization.length; p++) {
                         let k = SearchOrganization[p];
@@ -520,10 +521,10 @@ exports.updateTrackingStatus = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId, status } = req.body;
+            const { trackingId, organizationId, status } = req.body;
             var mobileVali = validation.updateTrackingStatus(req.body);
             if(mobileVali.passes()===true){
-                var updateTrackingStatus =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var updateTrackingStatus =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(updateTrackingStatus.length > 0){
                     var TrackingStatus =await sequelize.query("UPDATE tracking_details SET `status`='"+status+"' WHERE `id`="+updateTrackingStatus[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
                     if(TrackingStatus.slice(-1)[0] > 0) {
@@ -553,10 +554,10 @@ exports.updateTrackingDetails = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId, trackingDetails } = req.body;
+            const { trackingId, organizationId, trackingDetails } = req.body;
             var mobileVali = validation.updateTrackingDetails(req.body);
             if(mobileVali.passes()===true){
-                var updateTrackingDetails =await sequelize.query("SELECT `t`.`id` AS Id, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var updateTrackingDetails =await sequelize.query("SELECT `t`.`id` AS Id, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" ",{ type: Sequelize.QueryTypes.SELECT });
                 if(updateTrackingDetails.length > 0){
                     var timeStamp = (updateTrackingDetails[0].time_stamp!='') ? updateTrackingDetails[0].time_stamp+','+trackingDetails.timeStamp : trackingDetails.timeStamp;
                     var latitude = (updateTrackingDetails[0].latitude!='') ? updateTrackingDetails[0].latitude+','+trackingDetails.latitude : trackingDetails.latitude;
@@ -589,11 +590,11 @@ exports.updateTrackingActive = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId, active } = req.body;
+            const { trackingId, organizationId, active } = req.body;
             var mobileVali = validation.updateTrackingActive(req.body);
             if(mobileVali.passes()===true){
                 var activeR = (active=="true") ? 'active' : 'inactive';
-                var updateTrackingActive =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var updateTrackingActive =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(updateTrackingActive.length > 0){
                     var TrackingActive =await sequelize.query("UPDATE tracking_details SET `active_status`='"+activeR+"' WHERE `id`="+updateTrackingActive[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
                     if(TrackingActive.slice(-1)[0] > 0) {
@@ -623,10 +624,10 @@ exports.updateActiveMobileNumber = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId, activeMobileNumber } = req.body;
+            const { trackingId, organizationId, activeMobileNumber } = req.body;
             var mobileVali = validation.updateActiveMobileNumber(req.body);
             if(mobileVali.passes()===true){
-                var updateActiveMobileNumber =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var updateActiveMobileNumber =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(updateActiveMobileNumber.length > 0){
                     var activeMobileNumbers = JSON.stringify(activeMobileNumber);
                     var ActiveMobileNumber =await sequelize.query("UPDATE `tracking_details` SET `tracked_mobile_number`='"+activeMobileNumbers+"', `tracked_mobile_mumbers`='"+activeMobileNumbers+"', `current_tracking_number`='"+activeMobileNumbers+"' WHERE `id`="+updateActiveMobileNumber[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
@@ -657,10 +658,10 @@ exports.addContactandMobileNumber = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { trackingId, userId, organizationId, addMobileNumber } = req.body;
+            const { trackingId, organizationId, addMobileNumber } = req.body;
             var mobileVali = validation.addContactandMobileNumber(req.body);
             if(mobileVali.passes()===true){
-                var addContactandMobileNumber =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" AND `u`.`id`="+userId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var addContactandMobileNumber =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(addContactandMobileNumber.length > 0){
                     var addMobileNumberT = JSON.stringify(addMobileNumber);
                     var addContactMobileNumber =await sequelize.query("UPDATE `tracking_details` SET `add_mobile_number`='"+addMobileNumberT+"' WHERE `id`="+trackingId+"",{ type: Sequelize.QueryTypes.UPDATE });
@@ -772,6 +773,134 @@ exports.editParticularSection = async function(req, res, next) {
                     } else {
                         res.status(200).json({success:false});// Return json with error massage
                     }
+                } else {
+                    res.status(200).json({success:false});// Return json with error massage
+                }
+            } else {
+                res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors}); // Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: false,data: 'You dont have permission to access'});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: header.passes(),data: header.errors.errors});// Return json with error massage
+    }
+}
+/************************* Update Active Mobile Number ends *******************************/
+
+/************************* add Contact And Mobile Number start *******************************/
+exports.editToLocation = async function(req, res, next) {
+    const { access_token } = req.headers;
+    var header = validation.accessToken(req.headers);
+    if(header.passes()===true){
+        var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(accessToken.length > 0){
+            const { trackingId, organizationId, to } = req.body;
+            var mobileVali = validation.editToLocation(req.body);
+            if(mobileVali.passes()===true){
+                var getToLocation =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(getToLocation.length > 0){
+                    var toT = JSON.stringify(to);
+                    var editToLocations =await sequelize.query("UPDATE `tracking_details` SET `to_location`='"+toT+"' WHERE `id`="+getToLocation[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
+                    if(editToLocations.slice(-1)[0] > 0) {
+                        res.status(200).json({success:true}); //Return json with data or empty
+                    } else {
+                        res.status(200).json({success:false});// Return json with error massage
+                    }
+                } else {
+                    res.status(200).json({success:false});// Return json with error massage
+                }
+            } else {
+                res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors}); // Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: false,data: 'You dont have permission to access'});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: header.passes(),data: header.errors.errors});// Return json with error massage
+    }
+}
+/************************* Update Active Mobile Number ends *******************************/
+
+/************************* add Contact And Mobile Number start *******************************/
+exports.editTrakingCount = async function(req, res, next) {
+    const { access_token } = req.headers;
+    var header = validation.accessToken(req.headers);
+    if(header.passes()===true){
+        var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(accessToken.length > 0){
+            const { trackingId, organizationId, trackingCount } = req.body;
+            var mobileVali = validation.editTrakingCount(req.body);
+            if(mobileVali.passes()===true){
+                var getTrackingCount =await sequelize.query("SELECT `t`.`id` AS Id FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(getTrackingCount.length > 0){
+                    var editTrakingCount =await sequelize.query("UPDATE `tracking_details` SET `tracking_count`='"+trackingCount+"' WHERE `id`="+getTrackingCount[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
+                    if(editTrakingCount.slice(-1)[0] > 0) {
+                        res.status(200).json({success:true}); //Return json with data or empty
+                    } else {
+                        res.status(200).json({success:false});// Return json with error massage
+                    }
+                } else {
+                    res.status(200).json({success:false});// Return json with error massage
+                }
+            } else {
+                res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors}); // Return json with error massage
+            }
+        } else {
+            res.status(200).json({ success: false,data: 'You dont have permission to access'});// Return json with error massage
+        }
+    } else {
+        res.status(200).json({ success: header.passes(),data: header.errors.errors});// Return json with error massage
+    }
+}
+/************************* Update Active Mobile Number ends *******************************/
+
+/************************* add Contact And Mobile Number start *******************************/
+exports.sendSmsForDrop = async function(req, res, next) {
+    const { access_token } = req.headers;
+    var header = validation.accessToken(req.headers);
+    if(header.passes()===true){
+        var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
+        if(accessToken.length > 0){
+            const { trackingId, organizationId } = req.body;
+            var mobileVali = validation.sendSmsForDrop(req.body);
+            if(mobileVali.passes()===true){
+                var getContactNumber =await sequelize.query("SELECT `t`.`vehicle_number` AS vehicleNumber, `t`.`driver_mobile_number` AS driverMN, `tm`.`load_id` AS loadId, `t`.`from_location` AS `From`, `t`.`to_location` AS `To`, `t`.`other_location` AS otherLocation, `e`.`contact_mobile_number` AS orgCMN, `e`.`primary_contact_no` AS orgPCN, `b`.`contact_number` AS branchCN, `l`.`pickup_person_mobile` AS loadPPM, `l`.`drop_person_mobile` AS loadDPM, `u`.`mobile` AS userM  FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` LEFT JOIN `users` AS u ON `u`.`id`=`tm`.`user_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(getContactNumber.length > 0){
+                    let Froms = JSON.parse(getContactNumber[0].From);
+                    let Tos = JSON.parse(getContactNumber[0].To);
+                    let otherLocations = JSON.parse(getContactNumber[0].otherLocation);
+                    //let phoneNumberT = getContactNumber[0].branchCN+','+getContactNumber[0].orgCMN+','+getContactNumber[0].orgPCN+','+getContactNumber[0].loadPPM+','+getContactNumber[0].loadDPM+','+getContactNumber[0].userM+','+getContactNumber[0].driverMN;
+                    let phoneNumberT = getContactNumber[0].branchCN+','+getContactNumber[0].orgCMN;
+                    var contentT = 'Vehicle '+getContactNumber[0].vehicleNumber;
+                    if(getContactNumber[0].loadId>0){
+                        contentT +=' (loadId: '+getContactNumber[0].loadId+')';
+                    }
+                    if(Froms!=''){
+                        contentT +=' From '+Froms.city+', '+Froms.state;
+                    }                    
+                    if(otherLocations!=''){
+                        contentT +=' via '
+                        for (var p = 0; p < otherLocations.length; p++) {
+                            let k = otherLocations[p];
+                            if(p == 0){
+                                var reacheOther = (k.type=='drop') ? 'reached' : 'on the way';
+                                contentT +=k.city+', '+k.state+' ('+reacheOther+')';
+                            } else {
+                                var reacheOther = (k.type=='drop') ? 'reached' : 'on the way';
+                                contentT +=' - '+k.city+', '+k.state+' ('+reacheOther+')';
+                            }
+                        }
+                    }
+                    if(Tos!=''){
+                        var reacheTo = (Tos.reached=='true') ? 'reached' : 'on the way';
+                        contentT +=' To '+Tos.city+', '+Tos.state+' ('+reacheTo+')';
+                    }
+                    let phoneNumbersT = phoneNumberT.replace('null,', '');
+                    let phoneNumbersS = phoneNumbersT.replace(',null', '');
+                    let phoneNumbers = phoneNumbersS.replace('null', '');
+                    https.get("https://app.indiasms.com/sendsms/bulksms.php?username=saktip&password=anmol123&type=TEXT&sender=EPVHAN&mobile="+phoneNumbers+"&message="+contentT+"", (resp) => {}).on("error", (err) => {});
+                    res.status(200).json({success:true});
                 } else {
                     res.status(200).json({success:false});// Return json with error massage
                 }

@@ -73,6 +73,9 @@ router.post('/tracking/bulk-traking-upload',trackingController.bulkTrakingUpload
 router.post('/tracking/total-tracking-count',trackingController.getTotalTrackingCount);
 router.post('/tracking/edit-other-mobile-number',trackingController.editOtherMobileNumber);
 router.post('/tracking/edit-other-location',trackingController.editOtherLocation);
+router.post('/tracking/edit-to-location',trackingController.editToLocation);
+router.post('/tracking/edit-to-count',trackingController.editTrakingCount);
 router.post('/tracking/edit/tracking',trackingController.editParticularSection);
+router.post('/tracking/send-sms',trackingController.sendSmsForDrop);
 /*Tracking Controller End*/
 module.exports = router;

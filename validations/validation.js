@@ -47,20 +47,16 @@ exports.LoginVerifyOtp = (req) => {
 };
 exports.getTrackingCount = (req) => {
 	let data = {
-		userId: req.userId,
 		role: req.role,
 		fromDate: req.fromDate,
 		toDate: req.toDate
 	};
 	let rules = {
-		userId: 'required|numeric',
 		role: 'required|in:admin,shipper',
 		fromDate: 'required|date',
 		toDate: 'required|date'
 	};
 	let error = {
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric',
 		'required.role': 'Role must be required',
 		'in.role': 'Role must be admin or shipper',
 		'required.fromDate': 'From date must be required',
@@ -73,25 +69,21 @@ exports.getTrackingCount = (req) => {
 };
 exports.getTrackingHistory = (req) => {
 	let data = {
-		userId: req.userId,
 		role: req.role,
-		shipperId: req.shipperId,
+		organizationId: req.organizationId,
 		fromDate: req.fromDate,
 		toDate: req.toDate
 	};
 	let rules = {
-		userId: 'required|numeric',
 		role: 'required|in:admin,shipper',
-		shipperId: 'numeric',
+		organizationId: 'numeric',
 		fromDate: 'required|date',
 		toDate: 'required|date'
 	};
 	let error = {
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric',
 		'required.role': 'Role must be required',
 		'in.role': 'Role must be admin or shipper',
-		'numeric.shipperId': 'Shipper Id must be numeric',
+		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
 		'required.toDate': 'To date must be required',
@@ -131,27 +123,23 @@ exports.searchUser = (req) => {
 };
 exports.getTrackingAnalysis = (req) => {
 	let data = {
-		userId: req.userId,
-		shipperId: req.shipperId,
+		organizationId: req.organizationId,
 		role: req.role,
 		fromDate: req.fromDate,
 		toDate: req.toDate,
 		type: req.type
 	};
 	let rules = {
-		userId: 'required|numeric',
-		shipperId: 'numeric',
+		organizationId: 'numeric',
 		role: 'required|in:admin,shipper',
 		fromDate: 'required|date',
 		toDate: 'required|date',
 		type: 'required|in:month,date'
 	};
 	let error = {
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric',
 		'required.role': 'Role must be required',
 		'in.role': 'Role must be admin or shipper',
-		'numeric.shipperId': 'Shipper Id must be numeric',
+		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
 		'required.toDate': 'To date must be required',
@@ -164,27 +152,23 @@ exports.getTrackingAnalysis = (req) => {
 };
 exports.getFailedAnalysis = (req) => {
 	let data = {
-		userId: req.userId,
-		shipperId: req.shipperId,
+		organizationId: req.organizationId,
 		role: 'required|in:admin,shipper',
 		fromDate: req.fromDate,
 		toDate: req.toDate,
 		type: 'required|in:month,date'
 	};
 	let rules = {
-		userId: 'required|numeric',
-		shipperId: 'numeric',
+		organizationId: 'numeric',
 		role: 'required|in:admin,shipper',
 		fromDate: 'required|date',
 		toDate: 'required|date',
 		type: 'required|in:month,date'
 	};
 	let error = {
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric',
 		'required.role': 'Role must be required',
 		'in.role': 'Role must be admin or shipper',
-		'numeric.shipperId': 'Shipper Id must be numeric',
+		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
 		'required.toDate': 'To date must be required',
@@ -443,6 +427,64 @@ exports.getTrackingEdit = (req) => {
 		'array.otherLocation': 'Other location must be required and array format',
 		'required.totalTrackCount': 'Total track count must be required',
 		'numeric.totalTrackCount': 'Total track count must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.editToLocation = (req) => {
+	let data = {
+		trackingId: req.trackingId,
+		organizationId: req.organizationId,
+		tolat: req.to.lat,
+		tolang: req.to.lang,
+		reached: req.to.reached,
+		tocity: req.to.city,
+		tostate: req.to.state
+	};
+	let rules = {
+		trackingId: 'required|numeric',
+		organizationId: 'required|numeric',
+		tolat: ['required','regex:/^(\\+|-)?(?:90(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
+		tolang: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
+		reached: 'required|in:true,false',
+		tocity: ['required','regex:/^[a-zA-Z ]*$/'],
+		tostate: ['required','regex:/^[a-zA-Z ]*$/']
+	};
+	let error = {
+		'required.trackingId': 'Tracking id must be required',
+		'numeric.trackingId': 'Tracking id must be numeric',
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.tolat': 'To lat must be required',
+		'required.tolang': 'To lang must be required',
+		'required.tocity': 'To city must be required',
+		'regex.tocity': 'To city must be alphabet and space',
+		'required.tostate': 'To state must be required',
+		'regex.tostate': 'To state must be alphabet and space',
+		'required.reached': 'To lang must be required',
+		'in.reached': 'To Reached must be true or false'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.editTrakingCount = (req) => {
+	let data = {
+		trackingId: req.trackingId,
+		organizationId: req.organizationId,
+		trackingCount: req.trackingCount
+	};
+	let rules = {
+		trackingId: 'required|numeric',
+		organizationId: 'required|numeric',
+		trackingCount: 'required|numeric'
+	};
+	let error = {
+		'required.trackingId': 'Tracking id must be required',
+		'numeric.trackingId': 'Tracking id must be numeric',
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.trackingCount': 'Tracking count must be required',
+		'numeric.trackingCount': 'Tracking count must be numeric'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1025,11 +1067,28 @@ exports.getTracking = (req) => {
 	let validation = new Validator(data, rules, error);
 	return validation;
 };
+exports.sendSmsForDrop = (req) => {
+	let data = {
+		trackingId: req.trackingId,
+		organizationId: req.organizationId
+	};
+	let rules = {
+		trackingId: 'required|numeric',
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.trackingId': 'Tracking id must be required',
+		'numeric.trackingId': 'Tracking id must be numeric',
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
 exports.particularTrackingDetails = (req) => {
 	let data = {
 		trackingId: req.trackingId,
-		organizationId: req.organizationId,
-		userId: req.userId
+		organizationId: req.organizationId
 	};
 	let rules = {
 		trackingId: 'required|numeric',
@@ -1040,9 +1099,7 @@ exports.particularTrackingDetails = (req) => {
 		'required.trackingId': 'Tracking id must be required',
 		'numeric.trackingId': 'Tracking id must be numeric',
 		'required.organizationId': 'Organization id must be required',
-		'numeric.organizationId': 'Organization id must be numeric',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'numeric.organizationId': 'Organization id must be numeric'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1051,14 +1108,12 @@ exports.updateTrackingStatus = (req) => {
 	let data = {
 		trackingId: req.trackingId,
 		organizationId: req.organizationId,
-		status: req.status,
-		userId: req.userId
+		status: req.status
 	};
 	let rules = {
 		trackingId: 'required|numeric',
 		organizationId: 'required|numeric',
-		status: ['required','regex:/^[a-z]*$/'],
-		userId: 'required|numeric'
+		status: 'required|in:in-progress,completed,failed,delay,canceled,awaited,tracked,non-tracked'
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1066,9 +1121,7 @@ exports.updateTrackingStatus = (req) => {
 		'required.organizationId': 'Organization id must be required',
 		'numeric.organizationId': 'Organization id must be numeric',
 		'required.status': 'Status must be required',
-		'regex.status': 'Status must be alphabets and small latter',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'in.status': 'Status must be Status id must be in-progress or completed or failed,delay or canceled or awaited or tracked or non-tracked'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1077,14 +1130,12 @@ exports.updateTrackingActive = (req) => {
 	let data = {
 		trackingId: req.trackingId,
 		organizationId: req.organizationId,
-		active: req.active,
-		userId: req.userId
+		active: req.active
 	};
 	let rules = {
 		trackingId: 'required|numeric',
 		organizationId: 'required|numeric',
-		active: 'required|in:active,inactive',
-		userId: 'required|numeric'
+		active: 'required|in:active,inactive'
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1092,9 +1143,7 @@ exports.updateTrackingActive = (req) => {
 		'required.organizationId': 'Organization id must be required',
 		'numeric.organizationId': 'Organization id must be numeric',
 		'required.active': 'Active must be required',
-		'in.active': 'Active must be active or inactive',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'in.active': 'Active must be active or inactive'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1103,14 +1152,12 @@ exports.updateActiveMobileNumber = (req) => {
 	let data = {
 		trackingId: req.trackingId,
 		organizationId: req.organizationId,
-		activeMobileNumber: req.activeMobileNumber,
-		userId: req.userId
+		activeMobileNumber: req.activeMobileNumber
 	};
 	let rules = {
 		trackingId: 'required|numeric',
 		organizationId: 'required|numeric',
-		activeMobileNumber: 'required|digits:10',
-		userId: 'required|numeric'
+		activeMobileNumber: 'required|digits:10'
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1118,9 +1165,7 @@ exports.updateActiveMobileNumber = (req) => {
 		'required.organizationId': 'Organization id must be required',
 		'numeric.organizationId': 'Organization id must be numeric',
 		'required.activeMobileNumber': 'Active mobile number must be required',
-		'digits.activeMobileNumber': 'Active mobile number must be 10 digits',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'digits.activeMobileNumber': 'Active mobile number must be 10 digits'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1131,16 +1176,14 @@ exports.addContactandMobileNumber = (req) => {
 		organizationId: req.organizationId,
 		contactName: req.addMobileNumber.contactName,
 		contactMobileNumber: req.addMobileNumber.contactMobileNumber,
-		trackable: req.addMobileNumber.trackable,
-		userId: req.userId
+		trackable: req.addMobileNumber.trackable
 	};
 	let rules = {
 		trackingId: 'required|numeric',
 		organizationId: 'required|numeric',
 		contactName: ['required','regex:/^[a-zA-Z ]*$/'],
 		contactMobileNumber: 'required|digits:10',
-		trackable: 'required|in:true,false',
-		userId: 'required|numeric'
+		trackable: 'required|in:true,false'
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1152,9 +1195,7 @@ exports.addContactandMobileNumber = (req) => {
 		'required.contactMobileNumber': 'Contact mobile number must be required',
 		'digits.contactMobileNumber': 'Contact mobile number must be 10 digits',
 		'required.trackable': 'Trackable must be required',
-		'in.trackable': 'Trackable must be true or false',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'in.trackable': 'Trackable must be true or false'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1173,8 +1214,7 @@ exports.updateTrackingDetails = (req) => {
 		organizationId: 'required|numeric',
 		timeStamp: ['required','regex:/^$|^(([01][0-9])|(2[0-3])):[0-5][0-9]$/'],
 		latitude: ['required','regex:/^(\\+|-)?(?:90(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
-		longitude: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
-		userId: 'required|numeric'
+		longitude: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/']
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1186,9 +1226,7 @@ exports.updateTrackingDetails = (req) => {
 		'required.latitude': 'Latitude must be required',
 		'regex.latitude': 'Latitude must be 33.333333 format',
 		'required.longitude': 'Longitude must be required',
-		'regex.longitude': 'Longitude must be 34.333333 format',
-		'required.userId': 'User id must be required',
-		'numeric.userId': 'User id must be numeric'
+		'regex.longitude': 'Longitude must be 34.333333 format'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1204,7 +1242,7 @@ exports.generateReport = (req) => {
 		organizationId: 'numeric',
 		fromDate: 'required|date',
 		toDate: 'required|date',
-		type: ['required','regex:/^[a-z]*$/']
+		type: 'required|in:bulk,mis'
 	};
 	let error = {
 		'required.organizationId': 'Organization id must be required',
@@ -1214,7 +1252,7 @@ exports.generateReport = (req) => {
 		'required.toDate': 'To date must be required',
 		'date.toDate': 'To date must be yyyy-mm-dd format',
 		'required.type': 'Type must be required',
-		'regex.type': 'Type must be alphabets and small latter'
+		'in.type': 'Type must be bulk or mis'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1295,6 +1333,31 @@ exports.editParticularSection = (req) => {
 		'numeric.totalTrackCount': 'Max tracking count must be numeric',
 		'required.comment':'Comment must be required',
 		'regex.comment':'Comment must be alpha-numeric, comma, dot, star, hyphen, underscore and slash'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.uploadOrganizationLogo = (req) => {
+	let data = {
+		organizationId: req.organizationId,
+		logo: req.logo,
+		logoType: req.logoType,
+		type: req.type
+	};
+	let rules = {
+		organizationId: 'required|numeric',
+		logo: 'required',
+		logoType: 'required|in:jpg,png,gif,jpeg',
+		type: ['required','regex:/^[a-z]*$/']
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.logo': 'Logo must be required',
+		'required.logoType': 'Logo type must be required',
+		'in.logoType': 'Logo type must be jpg or png or gif or jpeg',
+		'required.type': 'Type must be required',
+		'array.type': 'Type must be alphabets and small latter'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
