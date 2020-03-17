@@ -220,12 +220,25 @@ exports.addUserToOrganization = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { organizationId, userName, userEmail, userMobileNumber, userRole, userStatus } = req.body;
+            const { organizationId, userName, userEmail, userMobileNumber, userType, userRole, userStatus } = req.body;
             var mobileVali = validation.addUserToOrganization(req.body);
             if(mobileVali.passes()===true){
+                var remember_token = validation.makeid(30);
                 var existUser = await sequelize.query("SELECT id FROM `users` WHERE `email`='"+userEmail+"' OR `mobile`='"+userMobileNumber+"'",{ type: Sequelize.QueryTypes.SELECT });
                 if(existUser.length <= 0){
-                    var addUserToOrganization = await sequelize.query("INSERT INTO `users`(`enterprise_id`, `name`, `email`, `mobile`, `user_type`, `status`) VALUES ("+organizationId+",'"+userName+"','"+userEmail+"','"+userMobileNumber+"','"+userRole+"','"+userStatus+"')",{ type: Sequelize.QueryTypes.INSERT });
+                    var roleField ='';
+                    var roleValue ='';
+                    if(userRole=='admin'){
+                        roleField='`is_admin`,`is_manager`,`is_user`';
+                        roleValue="'yes','no','no'";
+                    } else if(userRole=='manager'){
+                        roleField='`is_admin`,`is_manager`,`is_user`';
+                        roleValue="'no','yes','no'";
+                    } else {
+                        roleField='`is_admin`,`is_manager`,`is_user`';
+                        roleValue="'no','no','yes'";
+                    }
+                    var addUserToOrganization = await sequelize.query("INSERT INTO `users`(`enterprise_id`, `name`, `email`, `mobile`, `user_type`, `status`, `remember_token`, "+roleField+") VALUES ("+organizationId+",'"+userName+"','"+userEmail+"','"+userMobileNumber+"','"+userType+"','"+userStatus+"','"+remember_token+"',"+roleValue+")",{ type: Sequelize.QueryTypes.INSERT });
                     if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
                         res.status(200).send({ success: true}); //Return json with data or empty
                     }else{
@@ -253,13 +266,21 @@ exports.editUserToOrganization = async function(req, res, next) {
     if(header.passes()===true){
         var accessToken =await sequelize.query("SELECT `id`,`remember_token` FROM `users` WHERE `remember_token`='"+access_token+"'",{ type: Sequelize.QueryTypes.SELECT });
         if(accessToken.length > 0){
-            const { organizationId, userId, userName, userEmail, userMobileNumber, userRole, userStatus } = req.body;
+            const { organizationId, userId, userName, userEmail, userMobileNumber, userType, userRole, userStatus } = req.body;
             var mobileVali = validation.editUserToOrganization(req.body);
             if(mobileVali.passes()===true){
                 var existUser = await sequelize.query("SELECT id FROM `users` WHERE `email`='"+userEmail+"' OR `mobile`='"+userMobileNumber+"'",{ type: Sequelize.QueryTypes.SELECT });
                 if(existUser.length > 0){
                     if(existUser[0].id == userId){
-                        var editUserToOrganization = await sequelize.query("UPDATE `users` SET `enterprise_id`="+organizationId+", `name`='"+userName+"', `email`='"+userEmail+"', `mobile`='"+userMobileNumber+"', `user_type`='"+userRole+"', status='"+userStatus+"' WHERE `id`="+userId+"",{ type: Sequelize.QueryTypes.INSERT });
+                        var role ='';
+                        if(userRole=='admin'){
+                            role="`is_admin`='yes',`is_manager`='no',`is_user`='no'";
+                        } else if(userRole=='manager'){
+                            role="`is_admin`='no',`is_manager`='yes',`is_user`='no'";
+                        } else {
+                            role="`is_admin`='no',`is_manager`='no',`is_user`='yes'";
+                        }
+                        var editUserToOrganization = await sequelize.query("UPDATE `users` SET `enterprise_id`="+organizationId+", `name`='"+userName+"', `email`='"+userEmail+"', `mobile`='"+userMobileNumber+"', `user_type`='"+userType+"', status='"+userStatus+"', "+role+" WHERE `id`="+userId+"",{ type: Sequelize.QueryTypes.INSERT });
                         if(editUserToOrganization.slice(-1)[0] > 0){ //query result length check
                             res.status(200).send({ success: true}); //Return json with data or empty
                         }else{
@@ -437,7 +458,7 @@ exports.editOrganizationById = async function(req, res, next) {
                 var addUserToOrganization = await sequelize.query("UPDATE `enterprises` SET `organisation_name`='"+OrganizationName+"', `type`='"+OrganizationType+"', `email`='"+OrganizationEmail+"', `address`='"+OrganizationAddress+"', `country`='"+OrganizationCountry+"', `city`='"+OrganizationCity+"', `state`='"+OrganizationState+"', `pincode`='"+OrganizationPin+"', `contact_primary_name`='"+primaryContactName+"', `primary_contact_no`='"+primaryContactMobileNumber+"', `contact_name`='"+OrganizationContact+"', `contact_mobile_number`='"+OrganizationMobile+"', `bidding_client`='"+bidding_Client+"', `status`='"+statusN+"' WHERE `id`="+organizationId+"",{ type: Sequelize.QueryTypes.UPDATE });
                 if(addUserToOrganization.slice(-1)[0] > 0){ //query result length check
                     res.status(200).send({ success: true}); //Return json with data or empty
-                }else{
+                } else {
                     res.status(200).json({ success: false});// Return json with error massage
                 }
             } else {

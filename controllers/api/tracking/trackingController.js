@@ -48,9 +48,9 @@ exports.getSearchTracking = async function(req, res, next) {
                     queryQ = "WHERE `e`.`id`="+organizationId+"";
                 }
                 if(queryQ!=''){
-                    var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
+                    var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
                 } else {
-                    var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id`",{ type: Sequelize.QueryTypes.SELECT });
+                    var SearchTracking =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id`",{ type: Sequelize.QueryTypes.SELECT });
                 }
                 if(SearchTracking.length > 0) { //query result length check
                     for (var p = 0; p < SearchTracking.length; p++) {
@@ -63,8 +63,9 @@ exports.getSearchTracking = async function(req, res, next) {
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 SearchTracking[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -72,6 +73,7 @@ exports.getSearchTracking = async function(req, res, next) {
                         delete SearchTracking[p].latitude;delete SearchTracking[p].longitude;delete SearchTracking[p].time_stamp;
                         delete SearchTracking[p].from_location;delete SearchTracking[p].to_location;delete SearchTracking[p].tracked_mobile_mumbers;
                         delete SearchTracking[p].other_mobile_number;delete SearchTracking[p].other_location;
+                        delete SearchTracking[p].city;delete SearchTracking[p].state;
                     }
                     res.status(200).json({success: true,data: SearchTracking}); //Return json with data or empty
                 } else {
@@ -102,20 +104,21 @@ exports.getCompleteTrackingList = async function(req, res, next) {
                 var statusQ = (status!='' && status!=undefined) ? " AND `t`.`status`='"+status+"'" : "";
                 var organizationIdQ = (organizationId!='' && organizationId!=undefined) ? " AND `e`.`id`="+organizationId : "";
                 var limit = " LIMIT "+toCount+" OFFSET "+fromCount+""; 
-                var CompleteTrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE DATE(`t`.`created_at`)>='"+fromDate+"' AND DATE(`t`.`created_at`) <='"+toDate+"'"+organizationIdQ+statusQ+limit+"",{ type: Sequelize.QueryTypes.SELECT });
+                var CompleteTrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+organizationIdQ+statusQ+limit+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(CompleteTrackingList.length > 0) { //query result length check
                     for (var p = 0; p < CompleteTrackingList.length; p++) {
                         let k = CompleteTrackingList[p];
                         CompleteTrackingList[p]['From'] = JSON.parse(k.from_location);
                         CompleteTrackingList[p]['To'] = JSON.parse(k.to_location);
                         CompleteTrackingList[p]['otherLocation'] = JSON.parse(k.other_location);
-                        CompleteTrackingList[p]['trackkedMobileNumbers'] = JSON.parse(k.tracked_mobile_mumbers);                        
+                        CompleteTrackingList[p]['trackkedMobileNumbers'] = JSON.parse(k.tracked_mobile_mumbers);
                         CompleteTrackingList[p]['trackingDetails'] = [];
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 CompleteTrackingList[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -123,6 +126,7 @@ exports.getCompleteTrackingList = async function(req, res, next) {
                         delete CompleteTrackingList[p].latitude;delete CompleteTrackingList[p].longitude;delete CompleteTrackingList[p].time_stamp;
                         delete CompleteTrackingList[p].from_location;delete CompleteTrackingList[p].to_location;delete CompleteTrackingList[p].tracked_mobile_mumbers;
                         delete CompleteTrackingList[p].other_mobile_number;delete CompleteTrackingList[p].other_location;
+                        delete CompleteTrackingList[p].city;delete CompleteTrackingList[p].state;
                     }
                     res.status(200).json({success: true,data: CompleteTrackingList}); //Return json with data or empty
                 } else {
@@ -152,7 +156,7 @@ exports.getTotalTrackingCount = async function(req, res, next) {
             if(mobileVali.passes()===true){
                 var statusQ = (status!='' && status!=undefined) ? " AND `t`.`status`='"+status+"'" : "";
                 var organizationIdQ = (organizationId!='' && organizationId!=undefined) ? " AND `e`.`id`="+organizationId : ""; 
-                var TotalTrackingCount =await sequelize.query("SELECT count(`t`.`tracking_id`) AS totalCount FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE DATE(`t`.`created_at`)>='"+fromDate+"' AND DATE(`t`.`created_at`) <='"+toDate+"'"+organizationIdQ+statusQ+"",{ type: Sequelize.QueryTypes.SELECT });
+                var TotalTrackingCount =await sequelize.query("SELECT count(`t`.`tracking_id`) AS totalCount FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE DATE(`t`.`start_date`)>='"+fromDate+"' AND DATE(`t`.`start_date`) <='"+toDate+"'"+organizationIdQ+statusQ+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(TotalTrackingCount.length > 0) { //query result length check                    
                     res.status(200).json({success: true,data:TotalTrackingCount}); //Return json with data or empty
                 } else {
@@ -240,7 +244,7 @@ exports.getTrackingDetails = async function(req, res, next) {
             const { trackingId } = req.body;
             var mobileVali = validation.getTrackingDetailss(req.body);    
             if(mobileVali.passes()===true){
-                var TrackingDetails =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var TrackingDetails =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(TrackingDetails.length > 0){ //query result length check
                     for (var p = 0; p < TrackingDetails.length; p++) {
                         let k = TrackingDetails[p];
@@ -252,8 +256,9 @@ exports.getTrackingDetails = async function(req, res, next) {
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 TrackingDetails[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -261,6 +266,7 @@ exports.getTrackingDetails = async function(req, res, next) {
                         delete TrackingDetails[p].latitude;delete TrackingDetails[p].longitude;delete TrackingDetails[p].time_stamp;
                         delete TrackingDetails[p].from_location;delete TrackingDetails[p].to_location;delete TrackingDetails[p].tracked_mobile_mumbers;
                         delete TrackingDetails[p].other_mobile_number;delete TrackingDetails[p].other_location;
+                        delete TrackingDetails[p].city;delete TrackingDetails[p].state;
                     }
                     res.status(200).json({success: true,data: TrackingDetails}); //Return json with data or empty
                 } else {
@@ -298,7 +304,7 @@ exports.getSearchOrganization = async function(req, res, next) {
                     queryQ = "WHERE `e`.`organisation_name`='%"+organizationName+"%'";
                 }
                 if(queryQ!=''){
-                    var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `tm`.`load_id` AS loadId, `e`.`id` AS organizationId, `e`.`organisation_name` AS OrganizationName, `e`.`address` AS OrganizationAddress, `e`.`email` AS OrganizationEmail, `e`.`email` AS OrganizationContact, `e`.`primary_contact_no` AS OrganizationMobile, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `t`.`from_location` AS `Form`, `t`.`to_location` AS `To`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `v`.`driver_name` AS driverName, `v`.`driver_mobile` AS driverMobileNumber, `t`.`tracked_mobile_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers` AS trackkedMobileNumbers, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `users` AS u ON `u`.`id`=`t`.`tracked_by_user_id` LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`u`.`enterprise_id` LEFT JOIN `vehicle_details` AS v ON `v`.`enterprise_id`=`e`.`id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
+                    var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
                 }
                 if(SearchOrganization.length > 0) { //query result length check
                     for (var p = 0; p < SearchOrganization.length; p++) {
@@ -311,8 +317,9 @@ exports.getSearchOrganization = async function(req, res, next) {
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 SearchOrganization[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -320,6 +327,7 @@ exports.getSearchOrganization = async function(req, res, next) {
                         delete SearchOrganization[p].latitude;delete SearchOrganization[p].longitude;delete SearchOrganization[p].time_stamp;
                         delete SearchOrganization[p].from_location;delete SearchOrganization[p].to_location;delete SearchOrganization[p].tracked_mobile_mumbers;
                         delete SearchOrganization[p].other_mobile_number;delete SearchOrganization[p].other_location;
+                        delete SearchOrganization[p].city;delete SearchOrganization[p].state;
                     }
                     res.status(200).json({success: true,data: SearchOrganization}); //Return json with data or empty
                 } else {
@@ -356,9 +364,9 @@ exports.getTracking = async function(req, res, next) {
                     queryQ = "WHERE `e`.`id`="+organizationId+"";
                 }
                 if(queryQ!=''){
-                    var TrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
+                    var TrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` "+queryQ+"",{ type: Sequelize.QueryTypes.SELECT });
                 } else {
-                    var TrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id`",{ type: Sequelize.QueryTypes.SELECT });
+                    var TrackingList =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id`",{ type: Sequelize.QueryTypes.SELECT });
                 }
                 if(TrackingList.length > 0) { //query result length check
                     for (var p = 0; p < TrackingList.length; p++) {
@@ -371,8 +379,9 @@ exports.getTracking = async function(req, res, next) {
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 TrackingList[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -380,6 +389,7 @@ exports.getTracking = async function(req, res, next) {
                         delete TrackingList[p].latitude;delete TrackingList[p].longitude;delete TrackingList[p].time_stamp;
                         delete TrackingList[p].from_location;delete TrackingList[p].to_location;delete TrackingList[p].tracked_mobile_mumbers;
                         delete TrackingList[p].other_mobile_number;delete TrackingList[p].other_location;
+                        delete TrackingList[p].city;delete TrackingList[p].state;
                     }
                     res.status(200).json({success: true,data: TrackingList}); //Return json with data or empty
                 } else {
@@ -476,7 +486,7 @@ exports.particularTrackingDetails = async function(req, res, next) {
             const { trackingId, organizationId } = req.body;
             var mobileVali = validation.particularTrackingDetails(req.body);
             if(mobileVali.passes()===true){
-                var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                var SearchOrganization =await sequelize.query("SELECT `t`.`tracking_id` AS trackingId, `e`.`id` AS organizationId, `l`.`id` AS loadId, `b`.`id` AS BranchId, `b`.`name` AS BranchName, `b`.`contact_name` AS BranchContactName, `b`.`contact_number` AS BranchContactNumber, `b`.`city` AS BranchCity, `b`.`state` AS BranchState, `t`.`from_location`, `t`.`to_location`, `t`.`start_date` AS StartDate, `t`.`tracking_count` AS trackingCount, `t`.`max_tracking_count` AS maxTrackingCount, `t`.`driver_name` AS driverName, `t`.`driver_mobile_number` AS driverMobileNumber, `t`.`current_tracking_number` AS currentTrackingNumber, `t`.`tracked_mobile_mumbers`, `t`.`vehicle_number` AS vehicleNumber, `t`.`comment`, `t`.`status` AS status, if(`t`.`active_status`='active', 'true', 'false') AS active, `t`.`other_mobile_number`, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`other_location`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `loads` AS l ON `l`.`id`=`tm`.`load_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                 if(SearchOrganization.length > 0) { //query result length check
                     for (var p = 0; p < SearchOrganization.length; p++) {
                         let k = SearchOrganization[p];
@@ -488,8 +498,9 @@ exports.particularTrackingDetails = async function(req, res, next) {
                         if(k.time_stamp!='' && k.latitude!='' && k.longitude!=''){
                             let trackingDetails = {};
                             let timeStamp = k.time_stamp.split(',');let latitude = k.latitude.split(',');let longitude = k.longitude.split(',');
+                            let city = k.city.split(',');let state = k.state.split(',');
                             for (let i = 0; i < timeStamp.length; i++) {
-                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i]};
+                                let trackingDetails = {"latitude":latitude[i], "longitude":longitude[i],"timeStamp":timeStamp[i], "city":city[i],"state":state[i]};
                                 SearchOrganization[p]['trackingDetails'].push(trackingDetails);
                             }
                         }
@@ -497,6 +508,7 @@ exports.particularTrackingDetails = async function(req, res, next) {
                         delete SearchOrganization[p].latitude;delete SearchOrganization[p].longitude;delete SearchOrganization[p].time_stamp;
                         delete SearchOrganization[p].from_location;delete SearchOrganization[p].to_location;delete SearchOrganization[p].tracked_mobile_mumbers;
                         delete SearchOrganization[p].other_mobile_number;delete SearchOrganization[p].other_location;
+                        delete SearchOrganization[p].city;delete SearchOrganization[p].state;
                     }
                     res.status(200).json({success: true,data: SearchOrganization}); //Return json with data or empty
                 } else {
@@ -557,12 +569,14 @@ exports.updateTrackingDetails = async function(req, res, next) {
             const { trackingId, organizationId, trackingDetails } = req.body;
             var mobileVali = validation.updateTrackingDetails(req.body);
             if(mobileVali.passes()===true){
-                var updateTrackingDetails =await sequelize.query("SELECT `t`.`id` AS Id, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" ",{ type: Sequelize.QueryTypes.SELECT });
+                var updateTrackingDetails =await sequelize.query("SELECT `t`.`id` AS Id, `t`.`time_stamp`, `t`.`latitude`, `t`.`longitude`, `t`.`city`, `t`.`state` FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`tracking_id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `t`.`tracking_id`="+trackingId+" AND `e`.`id`="+organizationId+" ",{ type: Sequelize.QueryTypes.SELECT });
                 if(updateTrackingDetails.length > 0){
                     var timeStamp = (updateTrackingDetails[0].time_stamp!='') ? updateTrackingDetails[0].time_stamp+','+trackingDetails.timeStamp : trackingDetails.timeStamp;
                     var latitude = (updateTrackingDetails[0].latitude!='') ? updateTrackingDetails[0].latitude+','+trackingDetails.latitude : trackingDetails.latitude;
                     var longitude = (updateTrackingDetails[0].longitude!='') ? updateTrackingDetails[0].longitude+','+trackingDetails.longitude : trackingDetails.longitude;
-                    var TrackingDetails =await sequelize.query("UPDATE tracking_details SET `time_stamp`='"+timeStamp+"', `latitude`='"+latitude+"', `longitude`='"+longitude+"' WHERE `id`="+updateTrackingDetails[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
+                    var city = (updateTrackingDetails[0].city!='') ? updateTrackingDetails[0].city+','+trackingDetails.city : trackingDetails.city;
+                    var state = (updateTrackingDetails[0].state!='') ? updateTrackingDetails[0].state+','+trackingDetails.state : trackingDetails.state;
+                    var TrackingDetails =await sequelize.query("UPDATE tracking_details SET `time_stamp`='"+timeStamp+"', `latitude`='"+latitude+"', `longitude`='"+longitude+"', `city`='"+city+"', `state`='"+state+"' WHERE `id`="+updateTrackingDetails[0].Id+"",{ type: Sequelize.QueryTypes.UPDATE });
                     if(TrackingDetails.slice(-1)[0] > 0) {
                         res.status(200).json({success:true}); //Return json with data or empty
                     } else {

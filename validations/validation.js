@@ -47,18 +47,17 @@ exports.LoginVerifyOtp = (req) => {
 };
 exports.getTrackingCount = (req) => {
 	let data = {
-		role: req.role,
+		organizationId: req.organizationId,
 		fromDate: req.fromDate,
 		toDate: req.toDate
 	};
 	let rules = {
-		role: 'required|in:admin,shipper',
+		organizationId: 'numeric',
 		fromDate: 'required|date',
 		toDate: 'required|date'
 	};
 	let error = {
-		'required.role': 'Role must be required',
-		'in.role': 'Role must be admin or shipper',
+		'numeric.role': 'Organization id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
 		'required.toDate': 'To date must be required',
@@ -69,20 +68,16 @@ exports.getTrackingCount = (req) => {
 };
 exports.getTrackingHistory = (req) => {
 	let data = {
-		role: req.role,
 		organizationId: req.organizationId,
 		fromDate: req.fromDate,
 		toDate: req.toDate
 	};
 	let rules = {
-		role: 'required|in:admin,shipper',
 		organizationId: 'numeric',
 		fromDate: 'required|date',
 		toDate: 'required|date'
 	};
 	let error = {
-		'required.role': 'Role must be required',
-		'in.role': 'Role must be admin or shipper',
 		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
@@ -124,21 +119,17 @@ exports.searchUser = (req) => {
 exports.getTrackingAnalysis = (req) => {
 	let data = {
 		organizationId: req.organizationId,
-		role: req.role,
 		fromDate: req.fromDate,
 		toDate: req.toDate,
 		type: req.type
 	};
 	let rules = {
 		organizationId: 'numeric',
-		role: 'required|in:admin,shipper',
 		fromDate: 'required|date',
 		toDate: 'required|date',
 		type: 'required|in:month,date'
 	};
 	let error = {
-		'required.role': 'Role must be required',
-		'in.role': 'Role must be admin or shipper',
 		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
@@ -153,21 +144,17 @@ exports.getTrackingAnalysis = (req) => {
 exports.getFailedAnalysis = (req) => {
 	let data = {
 		organizationId: req.organizationId,
-		role: 'required|in:admin,shipper',
 		fromDate: req.fromDate,
 		toDate: req.toDate,
-		type: 'required|in:month,date'
+		type: req.type
 	};
 	let rules = {
 		organizationId: 'numeric',
-		role: 'required|in:admin,shipper',
 		fromDate: 'required|date',
 		toDate: 'required|date',
 		type: 'required|in:month,date'
 	};
 	let error = {
-		'required.role': 'Role must be required',
-		'in.role': 'Role must be admin or shipper',
 		'numeric.organizationId': 'Organization Id must be numeric',
 		'required.fromDate': 'From date must be required',
 		'date.fromDate': 'From date must be yyyy-mm-dd format',
@@ -284,10 +271,10 @@ exports.getTrackingAdd = (req) => {
 		fromlang: ['required_if:driverMobileOnTrack,true','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		tolang: ['required_if:driverMobileOnTrack,true','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		reached: 'required_if:driverMobileOnTrack,true|in:true,false',
-		fromcity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		tocity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		fromstate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		tostate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
+		fromcity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		tocity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		fromstate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		tostate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
 		comment: ['required','regex:/^[a-zA-Z0-9,.@#$%&!=+:;"*-\/] ?([a-zA-Z0-9,.@#$%&!=+:;"*-\/]|[a-zA-Z0-9,.@#$%&!=+:;"*-\/] )*[a-zA-Z0-9,.@#$%&!=+:;"*-\/]$/'],
 		otherLocation: 'array',
 		totalTrackCount: 'required|numeric'
@@ -378,10 +365,10 @@ exports.getTrackingEdit = (req) => {
 		fromlang: ['required_if:driverMobileOnTrack,true','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		tolang: ['required_if:driverMobileOnTrack,true','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		reached: 'required_if:driverMobileOnTrack,true|in:true,false',
-		fromcity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		tocity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		fromstate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
-		tostate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z ]*$/'],
+		fromcity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		tocity: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		fromstate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
+		tostate: ['required_if:driverMobileOnTrack,true','regex:/^[a-zA-Z0-9 ]*$/'],
 		comment: ['required','regex:/^[a-zA-Z0-9,.@#$%&!=+:;"*-\/] ?([a-zA-Z0-9,.@#$%&!=+:;"*-\/]|[a-zA-Z0-9,.@#$%&!=+:;"*-\/] )*[a-zA-Z0-9,.@#$%&!=+:;"*-\/]$/'],
 		otherLocation: 'array',
 		totalTrackCount: 'required|numeric'
@@ -447,8 +434,8 @@ exports.editToLocation = (req) => {
 		tolat: ['required','regex:/^(\\+|-)?(?:90(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		tolang: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
 		reached: 'required|in:true,false',
-		tocity: ['required','regex:/^[a-zA-Z ]*$/'],
-		tostate: ['required','regex:/^[a-zA-Z ]*$/']
+		tocity: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		tostate: ['required','regex:/^[a-zA-Z0-9 ]*$/']
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -583,6 +570,7 @@ exports.addUserToOrganization = (req) => {
 		userEmail: req.userEmail,
 		userMobileNumber: req.userMobileNumber,
 		userRole: req.userRole,
+		userType: req.userType,
 		userStatus: req.userStatus
 	};
 	let rules = {
@@ -590,7 +578,8 @@ exports.addUserToOrganization = (req) => {
 		userName: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
 		userEmail: 'required|email',
 		userMobileNumber: 'required|digits:10',
-		userRole: 'required|in:consignee,fleet,admin,super_admin',
+		userType: 'required|in:consignee,fleet,admin,super_admin',		
+		userRole: 'required|in:admin,manager,user',
 		userStatus: 'required|in:active,inactive'
 	};
 	let error = {
@@ -618,6 +607,7 @@ exports.editUserToOrganization = (req) => {
 		userEmail: req.userEmail,
 		userMobileNumber: req.userMobileNumber,
 		userRole: req.userRole,
+		userType: req.userType,
 		userStatus: req.userStatus
 	};
 	let rules = {
@@ -626,7 +616,8 @@ exports.editUserToOrganization = (req) => {
 		userName: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
 		userEmail: 'required|email',
 		userMobileNumber: 'required|digits:10',
-		userRole: 'required|in:consignee,fleet,admin,super_admin',
+		userType: 'required|in:consignee,fleet,admin,super_admin',		
+		userRole: 'required|in:admin,manager,user',
 		userStatus: 'required|in:active,inactive'
 	};
 	let error = {
@@ -818,12 +809,12 @@ exports.editOrganizationById = (req) => {
 		OrganizationEmail: 'required|email',
 		OrganizationAddress: ['required','regex:/^[a-zA-Z0-9,. :*-#\/] ?([a-zA-Z0-9,. :*-#\/]|[a-zA-Z0-9,. :*-#\/] )*[a-zA-Z0-9,. :*-#\/]$/'],
 		OrganizationType: 'required|in:consignee,fleet,admin',
-		OrganizationCountry: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationCity: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationState: ['required','regex:/^[a-zA-Z ]*$/'],
+		OrganizationCountry: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationCity: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationState: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
 		OrganizationPin: ['required','regex:/^[1-9][0-9]{5}$/'],
-		OrganizationContact: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationMobile: 'required|digits:10',
+		OrganizationContact: ['regex:/^[a-zA-Z ]*$/'],
+		OrganizationMobile: 'digits:10',
 		primaryContactName: ['required','regex:/^[a-zA-Z ]*$/'],
 		primaryContactMobileNumber: 'required|digits:10',
 		biddingClient: 'required|in:true,false',
@@ -886,12 +877,12 @@ exports.createOrganizationById = (req) => {
 		OrganizationEmail: 'required|email',
 		OrganizationAddress: ['required','regex:/^[a-zA-Z0-9,. :*-#\/] ?([a-zA-Z0-9,.*-#\/]|[a-zA-Z0-9,. :*-#\/] )*[a-zA-Z0-9,. :*-#\/]$/'],
 		OrganizationType: 'required|in:consignee,fleet,admin',
-		OrganizationCountry: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationCity: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationState: ['required','regex:/^[a-zA-Z ]*$/'],
+		OrganizationCountry: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationCity: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationState: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
 		OrganizationPin: ['required','regex:/^[1-9][0-9]{5}$/'],
-		OrganizationContact: ['required','regex:/^[a-zA-Z ]*$/'],
-		OrganizationMobile: 'required|digits:10',
+		OrganizationContact: ['regex:/^[a-zA-Z ]*$/'],
+		OrganizationMobile: 'digits:10',
 		primaryContactName: ['required','regex:/^[a-zA-Z ]*$/'],
 		primaryContactMobileNumber: 'required|digits:10',
 		biddingClient: 'required|in:true,false',
@@ -1207,14 +1198,17 @@ exports.updateTrackingDetails = (req) => {
 		timeStamp: req.trackingDetails.timeStamp,
 		latitude: req.trackingDetails.latitude,
 		longitude: req.trackingDetails.longitude,
-		userId: req.userId
+		city: req.trackingDetails.city,
+		state: req.trackingDetails.state
 	};
 	let rules = {
 		trackingId: 'required|numeric',
 		organizationId: 'required|numeric',
 		timeStamp: ['required','regex:/^$|^(([01][0-9])|(2[0-3])):[0-5][0-9]$/'],
 		latitude: ['required','regex:/^(\\+|-)?(?:90(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
-		longitude: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/']
+		longitude: ['required','regex:/^(\\+|-)?(?:180(?:(?:\\.0{1,80})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\\.[0-9]{1,80})?))$/'],
+		city: ['required','regex:/^[a-zA-Z0-9 ]*$/'],
+		state: ['required','regex:/^[a-zA-Z0-9 ]*$/']
 	};
 	let error = {
 		'required.trackingId': 'Tracking id must be required',
@@ -1226,7 +1220,11 @@ exports.updateTrackingDetails = (req) => {
 		'required.latitude': 'Latitude must be required',
 		'regex.latitude': 'Latitude must be 33.333333 format',
 		'required.longitude': 'Longitude must be required',
-		'regex.longitude': 'Longitude must be 34.333333 format'
+		'regex.longitude': 'Longitude must be 34.333333 format',
+		'required.city': 'Latitude must be required',
+		'regex.city': 'Latitude must be alphabets',
+		'required.state': 'Longitude must be required',
+		'regex.state': 'Longitude must be alphabets'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1361,4 +1359,158 @@ exports.uploadOrganizationLogo = (req) => {
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
+};
+exports.getPriceByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getLicenseDetailsByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getPaynemtHistoryByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getPaynemtHistoryByBillingId = (req) => {
+	let data = {
+		BillingId: req.BillingId
+	};
+	let rules = {
+		BillingId: 'required|numeric'
+	};
+	let error = {
+		'required.BillingId': 'Billing id must be required',
+		'numeric.BillingId': 'Billing id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.purchaseLicenseByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.purchaseLicenseByOrganizationsId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getAllPaymentByOrganizationIdAndMode = (req) => {
+	let data = {
+		organizationId: req.organizationId,
+		mode: req.mode
+	};
+	let rules = {
+		organizationId: 'required|numeric',
+		mode: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.mode': 'Mode must be required',
+		'numeric.mode': 'Mode must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getTotalPurchaseByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getTotalUsedByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.getUsedVsPendingLicenseByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId
+	};
+	let rules = {
+		organizationId: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.makeid = (req) => {
+	var result           = '';
+	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#@!$&';
+	var charactersLength = characters.length;
+	console.log(charactersLength);
+	for ( var i = 0; i < req; i++ ) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
 };

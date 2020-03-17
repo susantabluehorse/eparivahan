@@ -8,11 +8,26 @@ var organizationController = require('../controllers/api/organization/organizati
 var reportController = require('../controllers/api/report/reportController');
 var trackingController = require('../controllers/api/tracking/trackingController');
 var loginController = require('../controllers/api/login/loginController');
+var billingController = require('../controllers/api/billing/billingController');
 
-/*Analysis Controller Start*/
+/*Login Controller Start*/
 router.post('/login',loginController.getLogin);
 router.post('/login/verify-otp',loginController.getLoginVerifyOtp);
-/*Analysis Controller End*/
+/*Login Controller End*/
+
+/*Billing Controller Start*/
+router.post('/billing/price-by-organization-id',billingController.getPriceByOrganizationId);
+router.post('/billing/gst',billingController.getGST);
+router.post('/billing/license-details-by-organization-id',billingController.getLicenseDetailsByOrganizationId);
+router.post('/billing/paynemt-history-by-organization-id',billingController.getPaynemtHistoryByOrganizationId);
+router.post('/billing/paynemt-history-by-billing-id',billingController.getPaynemtHistoryByBillingId);
+router.post('/billing/purchase-license-by-organization-id',billingController.purchaseLicenseByOrganizationId);
+router.post('/billing/purchase-license-by-organizations-id',billingController.purchaseLicenseByOrganizationsId);
+router.post('/billing/all-payment-by-organization-id-mode',billingController.getAllPaymentByOrganizationIdAndMode);
+router.post('/billing/total-purchase-by-organization-id',billingController.getTotalPurchaseByOrganizationId);
+router.post('/billing/total-used-by-organization-id',billingController.getTotalUsedByOrganizationId);
+router.post('/billing/used-vs-pending-license-by-organization-id',billingController.getUsedVsPendingLicenseByOrganizationId);
+/*Billing Controller End*/
 
 /*Analysis Controller Start*/
 router.post('/analysis/change-tracking-status',analysisController.getChangeTrackingStatus);
