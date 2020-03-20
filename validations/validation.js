@@ -1374,16 +1374,63 @@ exports.getPriceByOrganizationId = (req) => {
 	let validation = new Validator(data, rules, error);
 	return validation;
 };
+exports.setPriceByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId,
+		price: req.price
+	};
+	let rules = {
+		organizationId: 'required|numeric',
+		price: 'required|numeric'
+	};
+	let error = {
+		'required.organizationId': 'Organization id must be required',
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.price': 'Price must be required',
+		'numeric.price': 'Price must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
 exports.getLicenseDetailsByOrganizationId = (req) => {
 	let data = {
 		organizationId: req.organizationId
 	};
 	let rules = {
-		organizationId: 'required|numeric'
+		organizationId: 'numeric'
+	};
+	let error = {
+		'numeric.organizationId': 'Organization id must be numeric'
+	};
+	let validation = new Validator(data, rules, error);
+	return validation;
+};
+exports.setLicenseDetailsByOrganizationId = (req) => {
+	let data = {
+		organizationId: req.organizationId,
+		PurchaseLicenseCount: req.PurchaseLicenseCount,
+		PurchaseDate: req.PurchaseDate,
+		TotalUsedLicense: req.TotalUsedLicense,
+		TotalPurchaseLicenseCount: req.TotalPurchaseLicenseCount,
+	};
+	let rules = {
+		organizationId: 'required|numeric',
+		PurchaseLicenseCount: 'required|numeric',
+		PurchaseDate: 'required|date',
+		TotalUsedLicense: 'required|numeric',
+		TotalPurchaseLicenseCount: 'required|numeric',
 	};
 	let error = {
 		'required.organizationId': 'Organization id must be required',
-		'numeric.organizationId': 'Organization id must be numeric'
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.PurchaseLicenseCount': 'Purchase license count must be required',
+		'numeric.PurchaseLicenseCount': 'Purchase license count must be numeric',
+		'required.PurchaseDate': 'Purchase date must be required',
+		'date.PurchaseDate': 'Purchase date must be yyyy-mm-dd',
+		'required.TotalUsedLicense': 'Total used license must be required',
+		'numeric.TotalUsedLicense': 'Total used license must be numeric',
+		'required.TotalPurchaseLicenseCount': 'Total purchase license count must be required',
+		'numeric.TotalPurchaseLicenseCount': 'Total purchase license count must be numeric',
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
@@ -1404,28 +1451,56 @@ exports.getPaynemtHistoryByOrganizationId = (req) => {
 };
 exports.getPaynemtHistoryByBillingId = (req) => {
 	let data = {
-		BillingId: req.BillingId
+		billingId: req.billingId
 	};
 	let rules = {
-		BillingId: 'required|numeric'
+		billingId: 'required|numeric'
 	};
 	let error = {
-		'required.BillingId': 'Billing id must be required',
-		'numeric.BillingId': 'Billing id must be numeric'
+		'required.billingId': 'Billing id must be required',
+		'numeric.billingId': 'Billing id must be numeric'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;
 };
 exports.purchaseLicenseByOrganizationId = (req) => {
 	let data = {
-		organizationId: req.organizationId
+		organizationId: req.organizationId,
+		BillingLicenseCount: req.BillingLicenseCount,
+		BIllingAmount: req.BIllingAmount,
+		BillingMode: req.BillingMode,
+		OrganizationChequeNumber: req.OrganizationChequeNumber,
+		OrganizationBankName: req.OrganizationBankName,
+		OrganizationBankBranch: req.OrganizationBankBranch,
+		OrganizationAccountNumber: req.OrganizationAccountNumber,
+		PurchaseRate: req.PurchaseRate,
 	};
 	let rules = {
-		organizationId: 'required|numeric'
+		organizationId: 'required|numeric',
+		BillingLicenseCount: 'required|numeric',
+		BIllingAmount: 'required|numeric',
+		BillingMode: ['required','regex:/^[a-zA-Z ]*$/'],
+		OrganizationChequeNumber: 'numeric',
+		OrganizationBankName: ['regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationBankBranch: ['regex:/^[a-zA-Z0-9 ]*$/'],
+		OrganizationAccountNumber: 'numeric',
+		PurchaseRate: 'required|numeric',
 	};
 	let error = {
 		'required.organizationId': 'Organization id must be required',
-		'numeric.organizationId': 'Organization id must be numeric'
+		'numeric.organizationId': 'Organization id must be numeric',
+		'required.BillingLicenseCount': 'License count must be required',
+		'numeric.BillingLicenseCount': 'License count must be numeric',
+		'required.BIllingAmount': 'Amount must be required',
+		'numeric.BIllingAmount': 'Amount must be numeric',
+		'required.BillingMode': 'Mode must be required',
+		'regex.BillingMode': 'Mode must be alphabet and space',
+		'numeric.OrganizationChequeNumber': 'Cheque number must be numeric',
+		'regex.OrganizationBankName': 'Bank name must be alphabet, space and numeric',
+		'regex.OrganizationBankBranch': 'Bank branch must be alphabet, space and numeric',
+		'numeric.OrganizationAccountNumber': 'Account number must be numeric',
+		'required.PurchaseRate': 'Rate must be required',
+		'numeric.PurchaseRate': 'Rate must be numeric'
 	};
 	let validation = new Validator(data, rules, error);
 	return validation;

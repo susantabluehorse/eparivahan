@@ -110,7 +110,17 @@ exports.getOrganizationById = async function(req, res, next) {
                         OrganizationById[p]['branchArr'] = []; //create ListOfLoad array
                         var LoadBy = await sequelize.query("SELECT `id` AS BranchId, `name` AS BranchName, `contact_name` AS BranchContactName, `contact_number` AS BranchContactNumber, `latitude` AS BranchLat, `longitude` AS BranchLang, `state` AS BranchState, `city` AS BranchCity, `pin` AS BranchPin  FROM `branchs` WHERE `enterprise_id`="+OrganizationById[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                         OrganizationById[p]['branchArr']=LoadBy;
-
+                        var LoadTrakingByOrgId = await sequelize.query("SELECT count(`t`.`id`) AS TotalTracking, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS inprogressTracking, COALESCE(SUM(IF(`t`.`status` = 'canceled', 1, 0)),0) AS calcelledTracking, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completedTracking, COALESCE(SUM(IF(`t`.`status` = 'awaited', 1, 0)),0) AS awaitedTracking FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `e`.`id`="+OrganizationById[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                        OrganizationById[p]['TotalTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['TotalTracking'] : 0;
+                        OrganizationById[p]['inprogressTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['inprogressTracking'] : 0;
+                        OrganizationById[p]['calcelledTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['calcelledTracking'] : 0;
+                        OrganizationById[p]['completedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['completedTracking'] : 0;
+                        OrganizationById[p]['awaitedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['awaitedTracking'] : 0;
+                        var BillingLicense = await sequelize.query("SELECT `id`,`remaining_license_count`,`total_used_license`,`total_purchase_license_count` FROM `billing_license` WHERE `enterprise_id`="+OrganizationById[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                        OrganizationById[p]['licenseId'] = (BillingLicense.length > 0) ? BillingLicense[0]['id'] : 0;
+                        OrganizationById[p]['RemainingLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['remaining_license_count'] : 0;
+                        OrganizationById[p]['TotalUsedLicense'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_used_license'] : 0;
+                        OrganizationById[p]['TotalPurchaseLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_purchase_license_count'] : 0;
                     };
                     res.status(200).send({ success: true, data: OrganizationById}); //Return json with data or empty
                 }else{
@@ -147,14 +157,17 @@ exports.getCompleteOrganizationList = async function(req, res, next) {
                         CompleteOrganizationList[p]['branchArr'] = []; //create ListOfBranch array                        
                         var LoadBranchByOrgId = await sequelize.query("SELECT `id` AS BranchId, `name` AS BranchName,`contact_name` AS BranchContactName, `contact_number` AS BranchContactNumber, `latitude` AS BranchLat, `longitude` AS BranchLang, `state` AS BranchState, `city` AS BranchCity, `pin` AS BranchPin  FROM `branchs` WHERE `enterprise_id`="+CompleteOrganizationList[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                         CompleteOrganizationList[p]['branchArr']=LoadBranchByOrgId;
-                        var LoadTrakingByOrgId = await sequelize.query("SELECT count(`t`.`id`) AS TotalTracking, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS inprogressTracking, COALESCE(SUM(IF(`t`.`status` = 'canceled', 1, 0)),0) AS calcelledTracking, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completedTracking, COALESCE(SUM(IF(`t`.`status` = 'awaited', 1, 0)),0) AS awaitedTracking FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `e`.`id`="+CompleteOrganizationList[0].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
-                        if(LoadTrakingByOrgId.length > 0){
-                            CompleteOrganizationList[p]['TotalTracking'] = LoadTrakingByOrgId[0]['TotalTracking'];
-                            CompleteOrganizationList[p]['inprogressTracking'] = LoadTrakingByOrgId[0]['inprogressTracking'];
-                            CompleteOrganizationList[p]['calcelledTracking'] = LoadTrakingByOrgId[0]['calcelledTracking'];
-                            CompleteOrganizationList[p]['completedTracking'] = LoadTrakingByOrgId[0]['completedTracking'];
-                            CompleteOrganizationList[p]['awaitedTracking'] = LoadTrakingByOrgId[0]['awaitedTracking'];
-                        }
+                        var LoadTrakingByOrgId = await sequelize.query("SELECT count(`t`.`id`) AS TotalTracking, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS inprogressTracking, COALESCE(SUM(IF(`t`.`status` = 'canceled', 1, 0)),0) AS calcelledTracking, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completedTracking, COALESCE(SUM(IF(`t`.`status` = 'awaited', 1, 0)),0) AS awaitedTracking FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `e`.`id`="+CompleteOrganizationList[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                        CompleteOrganizationList[p]['TotalTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['TotalTracking'] : 0;
+                        CompleteOrganizationList[p]['inprogressTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['inprogressTracking'] : 0;
+                        CompleteOrganizationList[p]['calcelledTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['calcelledTracking'] : 0;
+                        CompleteOrganizationList[p]['completedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['completedTracking'] : 0;
+                        CompleteOrganizationList[p]['awaitedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['awaitedTracking'] : 0;
+                        var BillingLicense = await sequelize.query("SELECT `id`,`remaining_license_count`,`total_used_license`,`total_purchase_license_count` FROM `billing_license` WHERE `enterprise_id`="+CompleteOrganizationList[p].organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                        CompleteOrganizationList[p]['licenseId'] = (BillingLicense.length > 0) ? BillingLicense[0]['id'] : 0;
+                        CompleteOrganizationList[p]['RemainingLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['remaining_license_count'] : 0;
+                        CompleteOrganizationList[p]['TotalUsedLicense'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_used_license'] : 0;
+                        CompleteOrganizationList[p]['TotalPurchaseLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_purchase_license_count'] : 0;
                     };
                     res.status(200).send({ success: true, data: CompleteOrganizationList}); //Return json with data or empty
                 }else{
@@ -189,13 +202,16 @@ exports.searchOrganizationInDetails = async function(req, res, next) {
                         var LoadBranchByOrgId = await sequelize.query("SELECT `id` AS BranchId, `name` AS BranchName,`contact_name` AS BranchContactName, `contact_number` AS BranchContactNumber, `latitude` AS BranchLat, `longitude` AS BranchLang, `state` AS BranchState, `city` AS BranchCity, `pin` AS BranchPin  FROM `branchs` WHERE `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
                         CompleteOrganizationList[p]['branchArr']=LoadBranchByOrgId;
                         var LoadTrakingByOrgId = await sequelize.query("SELECT count(`t`.`id`) AS TotalTracking, COALESCE(SUM(IF(`t`.`status` = 'in-progress', 1, 0)),0) AS inprogressTracking, COALESCE(SUM(IF(`t`.`status` = 'canceled', 1, 0)),0) AS calcelledTracking, COALESCE(SUM(IF(`t`.`status` = 'completed', 1, 0)),0) AS completedTracking, COALESCE(SUM(IF(`t`.`status` = 'awaited', 1, 0)),0) AS awaitedTracking FROM `tracking_details` AS t LEFT JOIN `tracking_mappers` AS tm ON `tm`.`tracking_id`=`t`.`id` LEFT JOIN `branchs` AS b ON `b`.`id`=`tm`.`branch_id` LEFT JOIN `enterprises` AS e ON `e`.`id`=`b`.`enterprise_id` WHERE `e`.`id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
-                        if(LoadTrakingByOrgId.length > 0){
-                            CompleteOrganizationList[p]['TotalTracking'] = LoadTrakingByOrgId[0]['TotalTracking'];
-                            CompleteOrganizationList[p]['inprogressTracking'] = LoadTrakingByOrgId[0]['inprogressTracking'];
-                            CompleteOrganizationList[p]['calcelledTracking'] = LoadTrakingByOrgId[0]['calcelledTracking'];
-                            CompleteOrganizationList[p]['completedTracking'] = LoadTrakingByOrgId[0]['completedTracking'];
-                            CompleteOrganizationList[p]['awaitedTracking'] = LoadTrakingByOrgId[0]['awaitedTracking'];
-                        }
+                        CompleteOrganizationList[p]['TotalTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['TotalTracking'] : 0;
+                        CompleteOrganizationList[p]['inprogressTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['inprogressTracking'] : 0;
+                        CompleteOrganizationList[p]['calcelledTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['calcelledTracking'] : 0;
+                        CompleteOrganizationList[p]['completedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['completedTracking'] : 0;
+                        CompleteOrganizationList[p]['awaitedTracking'] = (LoadTrakingByOrgId.length > 0) ? LoadTrakingByOrgId[0]['awaitedTracking'] : 0;
+                        var BillingLicense = await sequelize.query("SELECT `id`,`remaining_license_count`,`total_used_license`,`total_purchase_license_count` FROM `billing_license` WHERE `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                        CompleteOrganizationList[p]['licenseId'] = (BillingLicense.length > 0) ? BillingLicense[0]['id'] : 0;
+                        CompleteOrganizationList[p]['RemainingLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['remaining_license_count'] : 0;
+                        CompleteOrganizationList[p]['TotalUsedLicense'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_used_license'] : 0;
+                        CompleteOrganizationList[p]['TotalPurchaseLicenseCount'] = (BillingLicense.length > 0) ? BillingLicense[0]['total_purchase_license_count'] : 0;
                         res.status(200).send({ success: true, data: CompleteOrganizationList}); //Return json with data or empty
                     };
                 }else{

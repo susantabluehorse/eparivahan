@@ -174,15 +174,27 @@ exports.getTrackingAdd = async function(req, res, next) {
                 var froms = JSON.stringify(from);
                 var tos = JSON.stringify(to);
                 var otherLocations = JSON.stringify(otherLocation);
-                var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`tracking_count`,`max_tracking_count`, `driver_mobile_number`, `comment`, `tracked_by_user_id`, `driver_name`, `vehicle_number`,`other_mobile_number`, `driver_mobile_on_track`, `from_location`, `to_location`, `start_date`, `created_by`,`other_location`) VALUES (0, "+totalTrackCount+", '"+driverNumber+"', '"+comment+"', "+userId+", '"+driverName+"', '"+vehicleNumber+"', '"+otherMobileNumbers+"', "+driverMobileOnTrack+", '"+froms+"', '"+tos+"', '"+startDate+"', "+userId+",'"+otherLocations+"')",{ type: Sequelize.QueryTypes.INSERT });
-                if(createTracking.slice(-1)[0] > 0) {
-                    var TrId = createTracking.slice(0,1);
-                    var updateTracking = await sequelize.query("UPDATE tracking_details SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='inactive' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
-                    var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
-                    var trakId = createTracking.slice(0,1);
-                    res.status(200).send({ success: true,"trackingId":trakId[0]}); //Return json with data or empty
+                var getBillingLicense = await sequelize.query("SELECT `id`, `remaining_license_count`, `total_used_license`, `total_purchase_license_count` FROM `billing_license` WHERE `enterprise_id`="+organizationId+"",{ type: Sequelize.QueryTypes.SELECT });
+                if(getBillingLicense.length > 0){
+                    if(getBillingLicense[0].remaining_license_count > 0){
+                        var createTracking = await sequelize.query("INSERT INTO `tracking_details`(`tracking_count`,`max_tracking_count`, `driver_mobile_number`, `comment`, `tracked_by_user_id`, `driver_name`, `vehicle_number`,`other_mobile_number`, `driver_mobile_on_track`, `from_location`, `to_location`, `start_date`, `created_by`,`other_location`) VALUES (0, "+totalTrackCount+", '"+driverNumber+"', '"+comment+"', "+userId+", '"+driverName+"', '"+vehicleNumber+"', '"+otherMobileNumbers+"', "+driverMobileOnTrack+", '"+froms+"', '"+tos+"', '"+startDate+"', "+userId+",'"+otherLocations+"')",{ type: Sequelize.QueryTypes.INSERT });
+                        var TrId = createTracking.slice(0,1);
+                        var updateTracking = await sequelize.query("UPDATE `tracking_details` SET `tracking_id`='"+TrId+"', `status`='in-progress', `active_status`='active' WHERE `id`="+TrId+"",{ type: Sequelize.QueryTypes.UPDATE });
+                        var createTrackingMapped = await sequelize.query("INSERT INTO `tracking_mappers`(`user_id`, `load_id`, `tracking_id`, `branch_id`) VALUES ("+userId+","+loadId+","+TrId+","+branchId+")",{ type: Sequelize.QueryTypes.INSERT });
+                        if(createTracking.slice(-1)[0] > 0) {
+                            var trakId = createTracking.slice(0,1);
+                            var totalUsedLicense = getBillingLicense[0].total_used_license + 1;
+                            var remainingLicenseCount = getBillingLicense[0].total_purchase_license_count - totalUsedLicense;
+                            var updateTracking = await sequelize.query("UPDATE `billing_license` SET `remaining_license_count`="+remainingLicenseCount+", `total_used_license`="+totalUsedLicense+" WHERE `id`="+getBillingLicense[0].id+"",{ type: Sequelize.QueryTypes.UPDATE });
+                            res.status(200).send({ success: true,"trackingId":trakId[0]}); //Return json with data or empty
+                        } else {
+                            res.status(200).json({success:false});// Return json with error massage
+                        }
+                    } else {
+                        res.status(200).json({success:false, data:'Your remaining license count is zero'});// Return json with error massage
+                    }
                 } else {
-                    res.status(200).json({success:false});// Return json with error massage
+                    res.status(200).json({success:false, data:'Your License is expired'});// Return json with error massage
                 }
             } else {
                 res.status(200).json({ success: mobileVali.passes(),data: mobileVali.errors.errors});// Return json with error massage

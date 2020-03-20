@@ -10,23 +10,26 @@ var trackingController = require('../controllers/api/tracking/trackingController
 var loginController = require('../controllers/api/login/loginController');
 var billingController = require('../controllers/api/billing/billingController');
 
-/*Login Controller Start*/
+/*Analysis Controller Start*/
 router.post('/login',loginController.getLogin);
 router.post('/login/verify-otp',loginController.getLoginVerifyOtp);
-/*Login Controller End*/
+/*Analysis Controller End*/
 
 /*Billing Controller Start*/
 router.post('/billing/price-by-organization-id',billingController.getPriceByOrganizationId);
+router.post('/billing/create-price-by-organization-id',billingController.setPriceByOrganizationId);
 router.post('/billing/gst',billingController.getGST);
 router.post('/billing/license-details-by-organization-id',billingController.getLicenseDetailsByOrganizationId);
+router.post('/billing/create-license-details-by-organization-id',billingController.setLicenseDetailsByOrganizationId);
 router.post('/billing/paynemt-history-by-organization-id',billingController.getPaynemtHistoryByOrganizationId);
 router.post('/billing/paynemt-history-by-billing-id',billingController.getPaynemtHistoryByBillingId);
 router.post('/billing/purchase-license-by-organization-id',billingController.purchaseLicenseByOrganizationId);
-router.post('/billing/purchase-license-by-organizations-id',billingController.purchaseLicenseByOrganizationsId);
+router.post('/billing/get-purchase-license-by-organization-id',billingController.purchaseLicenseByOrganizationsId);
 router.post('/billing/all-payment-by-organization-id-mode',billingController.getAllPaymentByOrganizationIdAndMode);
 router.post('/billing/total-purchase-by-organization-id',billingController.getTotalPurchaseByOrganizationId);
 router.post('/billing/total-used-by-organization-id',billingController.getTotalUsedByOrganizationId);
 router.post('/billing/used-vs-pending-license-by-organization-id',billingController.getUsedVsPendingLicenseByOrganizationId);
+router.post('/billing/license-total-by-organization-id',billingController.getLicenseTotalByOrganizationId);
 /*Billing Controller End*/
 
 /*Analysis Controller Start*/
@@ -84,7 +87,6 @@ router.post('/tracking/update-tracking-details',trackingController.updateTrackin
 router.post('/tracking/update-tracking-active',trackingController.updateTrackingActive);
 router.post('/tracking/update-active-mobile-number',trackingController.updateActiveMobileNumber);
 router.post('/tracking/add-contact-mobile-number',trackingController.addContactandMobileNumber);
-router.post('/tracking/bulk-traking-upload',trackingController.bulkTrakingUpload);
 router.post('/tracking/total-tracking-count',trackingController.getTotalTrackingCount);
 router.post('/tracking/edit-other-mobile-number',trackingController.editOtherMobileNumber);
 router.post('/tracking/edit-other-location',trackingController.editOtherLocation);
@@ -92,5 +94,6 @@ router.post('/tracking/edit-to-location',trackingController.editToLocation);
 router.post('/tracking/edit-to-count',trackingController.editTrakingCount);
 router.post('/tracking/edit/tracking',trackingController.editParticularSection);
 router.post('/tracking/send-sms',trackingController.sendSmsForDrop);
+router.post('/tracking/bulk-traking-upload',trackingController.bulkTrakingUpload);
 /*Tracking Controller End*/
 module.exports = router;
